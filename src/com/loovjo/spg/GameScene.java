@@ -10,7 +10,9 @@ import com.loovjo.loo2D.utils.Vector;
 public class GameScene implements Scene {
 
 	public World world = new World();
-
+	
+	
+	
 	@Override
 	public void update() {
 		world.update();
@@ -18,6 +20,7 @@ public class GameScene implements Scene {
 
 	@Override
 	public void render(Graphics g, int width, int height) {
+		
 		world.draw(g, width, height);
 	}
 
