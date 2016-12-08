@@ -1,9 +1,11 @@
 package com.loovjo.spg.gameobject;
 
 import java.awt.Graphics;
+import java.util.ArrayList;
 
 import com.loovjo.loo2D.utils.Vector;
 import com.loovjo.spg.World;
+import com.loovjo.spg.gameobject.utils.LineSegment;
 
 public class GameObject {
 	
@@ -13,8 +15,12 @@ public class GameObject {
 	
 	public World world;
 	
-	public void draw(Graphics g, Vector camPos, int width, int height) {
-		part.draw(g, posInSpace.add(camPos), 1.2f, width, height);
+	public void draw(Graphics g, int width, int height) {
+		part.draw(g, width, height);
+	}
+	
+	public ArrayList<LineSegment> getIntersectors(LineSegment ln) {
+		return part.getIntersectors(ln);
 	}
 	
 }
