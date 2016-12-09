@@ -2,7 +2,6 @@ package com.loovjo.spg;
 
 import com.loovjo.loo2D.MainWindow;
 import com.loovjo.loo2D.utils.FileLoader;
-import com.loovjo.loo2D.utils.Line;
 import com.loovjo.loo2D.utils.Vector;
 
 public class Main extends MainWindow {

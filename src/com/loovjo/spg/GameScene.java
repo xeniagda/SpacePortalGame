@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import com.loovjo.loo2D.scene.Scene;
 import com.loovjo.loo2D.utils.Vector;
+import com.loovjo.spg.gameobject.utils.CollisionLineSegment;
 import com.loovjo.spg.gameobject.utils.LineSegment;
 
 public class GameScene implements Scene {
@@ -15,7 +16,7 @@ public class GameScene implements Scene {
 	public World world = new World();
 
 	public Vector lastPos;
-	public boolean holding;
+	public int holding = -1;
 
 	public Vector lastLinePos = new Vector(0, 0);
 	public Vector currentPos = new Vector(0, 0);
@@ -23,6 +24,12 @@ public class GameScene implements Scene {
 	@Override
 	public void update() {
 		world.update();
+		
+		if (holding == 3) {
+			Vector posInSpace = world.transformScreenToSpace(currentPos);
+			Vector force = posInSpace.sub(world.getPlayer().posInSpace);
+			world.getPlayer().applyForce(force.div(100f));
+		}
 	}
 
 	@Override
@@ -30,7 +37,7 @@ public class GameScene implements Scene {
 
 		world.draw(g, width, height);
 
-		ArrayList<LineSegment> intersectors = world.player.getIntersectors(
+		ArrayList<CollisionLineSegment> intersectors = world.getCollisions(
 				new LineSegment(world.transformScreenToSpace(lastLinePos), world.transformScreenToSpace(currentPos)));
 
 		g.setColor(Color.green);
@@ -43,9 +50,7 @@ public class GameScene implements Scene {
 		}
 		if (intersectors.size() > 0) {
 			g.setColor(Color.black);
-			System.out.println("!");
 		}
-
 		g.drawLine((int) lastLinePos.getX(), (int) lastLinePos.getY(), (int) currentPos.getX(),
 				(int) currentPos.getY());
 
@@ -54,32 +59,29 @@ public class GameScene implements Scene {
 	@Override
 	public void mousePressed(Vector pos, int button) {
 		lastPos = pos;
-		holding = true;
+		holding = button;
 	}
 
 	@Override
 	public void mouseReleased(Vector pos, int button) {
 		lastPos = null;
-		holding = false;
+		holding = -1;
 	}
 
 	@Override
 	public void mouseMoved(Vector pos) {
-		if (holding) {
+		if (holding == 1) {
 			Vector delta = lastPos.sub(pos);
 			world.camVel = world.camVel.add(delta.div(world.zoom).div(5));
 			lastPos = pos;
 		}
 		lastLinePos = currentPos;
 		currentPos = pos;
+		
 	}
 
 	@Override
 	public void keyPressed(int keyCode) {
-		if (keyCode == KeyEvent.VK_1)
-			world.zoom += 0.5;
-		if (keyCode == KeyEvent.VK_2)
-			world.zoom -= 0.5;
 		if (keyCode == KeyEvent.VK_UP)
 			world.camAccel.setY(-1);
 		if (keyCode == KeyEvent.VK_RIGHT)
@@ -92,14 +94,15 @@ public class GameScene implements Scene {
 			world.movingCamToPlayer = true;
 
 		if (keyCode == KeyEvent.VK_1)
-			world.player.part.applyRotationForce(0.1);
-		if (keyCode == KeyEvent.VK_2)
-			world.player.part.applyRotationForce(-0.1);
-
-		if (keyCode == KeyEvent.VK_3)
 			world.zoom *= 1.3;
-		if (keyCode == KeyEvent.VK_4)
+		if (keyCode == KeyEvent.VK_2)
 			world.zoom /= 1.3;
+
+		if (keyCode == KeyEvent.VK_Z)
+			world.getPlayer().part.applyRotationForce(0.1);
+		if (keyCode == KeyEvent.VK_X)
+			world.getPlayer().part.applyRotationForce(-0.1);
+
 	}
 
 	@Override
