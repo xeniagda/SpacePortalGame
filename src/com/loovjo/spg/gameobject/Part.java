@@ -22,8 +22,6 @@ public class Part {
 	public Vector connectionRelativeToOwner; // Center
 	public Vector connectionRelativeToMe; // Compared to center
 
-	public Vector vel = new Vector(0, 0);
-
 	public float size;
 
 	public Part owner;
@@ -40,11 +38,13 @@ public class Part {
 
 	public Vector lastPos;
 
+	public float weight;
+
 	// (0, 0) is center
 	public ArrayList<LineSegment> collisionLines = new ArrayList<LineSegment>();
 
 	public Part(Vector connectionRelativeToOwner, Vector connectionRelativeToMe, Part owner, float rotation, float size,
-			FastImage texture) {
+			float weight, FastImage texture) {
 		this.connectionRelativeToOwner = connectionRelativeToOwner;
 		this.connectionRelativeToMe = connectionRelativeToMe;
 		this.owner = owner;
@@ -53,20 +53,22 @@ public class Part {
 		this.texture = texture;
 		this.objOwner = owner.objOwner;
 
+		this.weight = weight;
+
 		this.lastPos = owner.getPosInSpace();
 		// this.collisionLines.add(new LineSegment(new Vector(-0.3, 0.3), new
 		// Vector(0, -1)));
 	}
 
 	public Part(Vector connectionRelativeToOwner, Vector connectionRelativeToMe, Part owner, float rotation, float size,
-			FastImage texture, FastImage colMesh) {
-		this(connectionRelativeToOwner, connectionRelativeToMe, owner, rotation, size, texture);
+			float weight, FastImage texture, FastImage colMesh) {
+		this(connectionRelativeToOwner, connectionRelativeToMe, owner, rotation, size, weight, texture);
 
 		setColMesh(colMesh);
 	}
 
 	public Part(Vector connectionRelativeToOwner, Vector connectionRelativeToMe, GameObject owner, float rotation,
-			float size, FastImage texture) {
+			float size, float weight, FastImage texture) {
 		this.connectionRelativeToOwner = connectionRelativeToOwner;
 		this.connectionRelativeToMe = connectionRelativeToMe;
 		this.owner = null;
@@ -74,20 +76,17 @@ public class Part {
 		this.size = size;
 		this.texture = texture;
 		this.objOwner = owner;
+		this.weight = weight;
 	}
 
 	public Part(Vector connectionRelativeToOwner, Vector connectionRelativeToMe, GameObject owner, float rotation,
-			float size, FastImage texture, FastImage colMesh) {
-		this(connectionRelativeToOwner, connectionRelativeToMe, owner, rotation, size, texture);
+			float size, float weight, FastImage texture, FastImage colMesh) {
+		this(connectionRelativeToOwner, connectionRelativeToMe, owner, rotation, size, weight, texture);
 
 		setColMesh(colMesh);
 	}
 
 	public void setColMesh(FastImage colMesh) {
-
-		System.out.println(getWidthInPixels());
-		System.out.println(getHeightInPixels());
-		System.out.println(getDimensionsInSpace());
 
 		HashMap<Integer, Vector> colMeshPixels = new HashMap<Integer, Vector>();
 		Vector wh = new Vector(colMesh.getWidth(), colMesh.getHeight());
@@ -110,9 +109,6 @@ public class Part {
 			}
 		}
 
-		System.out.println(colMeshPixels);
-		System.out.println(collisionLines);
-
 	}
 
 	public void draw(Graphics g, int width, int height) {
@@ -133,17 +129,25 @@ public class Part {
 		g2.setTransform(old);
 
 		if (DEBUG) {
+
+			boolean isActive = this == objOwner.world.active;
+
 			g2.setColor(Color.blue);
 			g2.fillOval((int) myPosOnScreen.getX() - 5, (int) myPosOnScreen.getY(), 10, 10);
 			for (LineSegment ln : getCollisionLinesInSpace()) {
 				Vector pos1Screen = objOwner.world.transformSpaceToScreen(ln.pos1);
 				Vector pos2Screen = objOwner.world.transformSpaceToScreen(ln.pos2);
-
 				g2.setColor(Color.red);
+				if (isActive) {
+					g2.setColor(Color.green);
+				}
 				g2.setStroke(new BasicStroke(1));
 				g2.drawLine((int) pos1Screen.getX(), (int) pos1Screen.getY(), (int) pos2Screen.getX(),
 						(int) pos2Screen.getY());
 			}
+
+			g2.drawString("" + (int) Math.toDegrees(getTotalRotation()), (int) myPosOnScreen.getX(),
+					(int) myPosOnScreen.getY());
 		}
 
 		connected.forEach(part -> part.draw(g2, width, height));
@@ -152,31 +156,25 @@ public class Part {
 	public void update() {
 		LineSegment spaceVel = getSpaceVel();
 
-		rotation += rotationVel;
+		rotation = (float) mod(rotation + rotationVel, Math.PI * 2);
 		rotationVel /= 1.01;
-
-		double velRot = Math.toRadians(vel.mul(new Vector(1, -1)).getRotation());
-		double diff = mod(rotation - velRot, Math.PI * 2);
-
-		if (diff > Math.PI)
-			diff -= Math.PI * 2;
-
-		rotation -= diff * vel.getLength();
-
-		vel = vel.div(objOwner.world.FRICTION);
 
 		connected.forEach(Part::update);
 
-		for (LineSegment ls : getCollisionLinesInSpace()) {
-			for (GameObject obj : objOwner.world.objects) {
-				if (obj != this.objOwner) {
-					if (obj.posInSpace.getLengthTo(objOwner.posInSpace) < obj.part.size * 2) {
-						for (CollisionLineSegment cls : obj.getIntersectors(ls)) {
-							Vector collisionCenter = cls.intersection(ls);
-							applyForce(collisionCenter.sub(getPosInSpace())
-									.mul(-spaceVel.getLength() - 0.5f * cls.collision.getSpaceVel().getLength()));
+		for (GameObject obj : objOwner.world.objects) {
+			if (obj != this.objOwner) {
+				hit: for (LineSegment ls : getCollisionLinesInSpace()) {
+					for (CollisionLineSegment cls : obj.getIntersectors(ls)) {
+						Vector collisionCenter = cls.intersection(ls);
 
-						}
+						Vector colAngle = getPosInSpace().sub(collisionCenter);
+
+						Vector bodyVel = spaceVel.getSpan();
+
+						objOwner.applyForce(bodyVel.mul(-2));
+
+						break hit;
+
 					}
 				}
 			}
@@ -189,8 +187,8 @@ public class Part {
 		return new LineSegment(lastPos, getPosInSpace());
 	}
 
-	public double mod(double a, double b) {
-		return a - b * Math.floor(a / b);
+	public float mod(double a, double b) {
+		return (float) (a - b * Math.floor(a / b));
 	}
 
 	public List<LineSegment> getCollisionLinesInSpace() {
@@ -205,7 +203,7 @@ public class Part {
 		if (owner == null)
 			return rotation;
 		else
-			return rotation + owner.getTotalRotation();
+			return mod(rotation + owner.getTotalRotation(), Math.PI * 2);
 	}
 
 	public Vector getPosInSpace() {
@@ -239,25 +237,31 @@ public class Part {
 		return (int) (texture.getHeight() * getSizeWHRatio());
 	}
 
-	// Spreaddir:
-	// 0 -> both ways
-	// 1 -> parent
-	// 2 -> children
-	public void applyForce(Vector force, float spread, int spreadDir) {
-		vel = vel.add(force);
-		if (spreadDir != 2) {
-			if (owner != null) {
-				owner.applyForce(force.mul(spread), spread, 1);
-			} else {
-				objOwner.applyForce(force.mul(spread));
-			}
-		}
-		if (spreadDir != 1)
-			connected.forEach(c -> c.applyForce(force.mul(spread), spread, 2));
+	public void applyForceToParent(Vector force) {
+		if (owner != null)
+			owner.applyForce(force);
+		else
+			objOwner.applyForce(force);
 	}
 
+	// Note: May not be 100% physically accurate
 	public void applyForce(Vector force) {
-		applyForce(force, objOwner.world.DEFAULT_SPREAD, 0);
+		System.out.println("Force: " + force);
+		
+		double velRot = -getRotation(force);
+		
+		double diff = mod(getTotalRotation() - velRot, Math.PI * 2);
+		
+		if (diff > Math.PI)
+			diff -= Math.PI * 2;
+
+		rotationVel -= diff * force.getLength();
+
+		Vector pos = getPosInSpace();
+		update();
+		Vector delta = getPosInSpace().sub(pos);
+		Vector deltaForce = force.sub(delta);
+		applyForceToParent(deltaForce);
 	}
 
 	public void applyRotationForce(double d) {
@@ -275,6 +279,10 @@ public class Part {
 			intersectors.addAll(child.getIntersectors(ln));
 		}
 		return intersectors;
+	}
+
+	public static float getRotation(Vector vec) {
+		return (float) Math.toRadians(new Vector(vec.getY(), -vec.getX()).getRotation());
 	}
 
 }

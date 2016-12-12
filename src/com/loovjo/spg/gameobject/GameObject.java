@@ -46,6 +46,8 @@ public class GameObject {
 	}
 
 	public void applyForce(Vector force) {
+		System.out.println("Force: " + force);
+		
 		vel = vel.add(force);
 	}
 	

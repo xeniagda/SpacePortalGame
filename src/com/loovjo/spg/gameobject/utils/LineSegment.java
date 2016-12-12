@@ -40,7 +40,11 @@ public class LineSegment {
 		}
 		return null;
 	}
-
+	
+	public Vector getSpan() {
+		return pos2.sub(pos1);
+	}
+	
 	public LineSegment add(Vector v) {
 		return new LineSegment(pos1.add(v), pos2.add(v));
 	}

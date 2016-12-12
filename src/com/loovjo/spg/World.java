@@ -35,7 +35,9 @@ public class World {
 	public int width, height;
 
 	public float DEFAULT_SPREAD = 0.3f;
-	public float FRICTION = 1.01f;
+	public float FRICTION = 1.004f;
+
+	public Part active = null;
 
 	public World() {
 		try {
@@ -43,20 +45,21 @@ public class World {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 		Player player = new Player(this, new Vector(0, 0), "Player");
 
-		Part playerBody = new Part(new Vector(0, 0), new Vector(0, 0), player, 0f, 1,
+		Part playerBody = new Part(new Vector(0, 0), new Vector(0, 0), player, 0, 1, 1,
 				ImageLoader.getImage("/Player/Body.png"), ImageLoader.getImage("/Player/Body_colmesh.png"));
-		Part armLeft1 = new Part(new Vector(-0.2, -0.5), new Vector(-0.3, 0), playerBody, 0, 0.5f,
+		Part armLeft1 = new Part(new Vector(-0.2, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI / 2 * 3, 0.5f, 1,
 				ImageLoader.getImage("/Player/Arm1.png"), ImageLoader.getImage("/Player/Arm1_colmesh.png"));
-		Part armRight1 = new Part(new Vector(0.2, -0.5), new Vector(0.3, 0), playerBody, 0, 0.5f,
+		Part armRight1 = new Part(new Vector(0.2, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI / 2, 0.5f,
+				1, ImageLoader.getImage("/Player/Arm1.png"), ImageLoader.getImage("/Player/Arm1_colmesh.png"));
+		Part armLeft2 = new Part(new Vector(0, -0.2), new Vector(0, -0.2), armLeft1, 0, 0.4f, 1,
 				ImageLoader.getImage("/Player/Arm1.png"), ImageLoader.getImage("/Player/Arm1_colmesh.png"));
-		Part armLeft2 = new Part(new Vector(-0.2, 0), new Vector(-0.2, 0), armLeft1, 0, 0.4f,
-				ImageLoader.getImage("/Player/Arm1.png"), ImageLoader.getImage("/Player/Arm1_colmesh.png"));
-		Part armRight2 = new Part(new Vector(0.2, 0), new Vector(0.2, 0), armRight1, 0, 0.4f,
+		Part armRight2 = new Part(new Vector(0, -0.2), new Vector(0, -0.2), armRight1, 0, 0.4f, 1,
 				ImageLoader.getImage("/Player/Arm1.png"), ImageLoader.getImage("/Player/Arm1_colmesh.png"));
 
-		Part head = new Part(new Vector(0, -0.5), new Vector(0, -0.3), playerBody, 0, 0.7f,
+		Part head = new Part(new Vector(0, -0.5), new Vector(0, -0.3), playerBody, 0, 0.7f, 1,
 				ImageLoader.getImage("/Player/Head.png"), ImageLoader.getImage("/Player/Head_colmesh.png"));
 
 		armLeft1.connected.add(armLeft2);
@@ -72,26 +75,27 @@ public class World {
 
 		loadSnake();
 
+		active = getPlayer().part;
 	}
 
 	public void loadSnake() {
-		GameObject obj = new GameObject(this, new Vector(3, 3), "Snake");
-		Part first = new Part(new Vector(0, 0), new Vector(0, 0), obj, 0, 0.7f,
+		GameObject obj = new GameObject(this, new Vector(3, 0), "Snake");
+		Part first = new Part(new Vector(0, 0), new Vector(0, 0), obj, 0, 0.7f, 10000f,
 				ImageLoader.getImage("/DebugSnakeThing/Part1.png"),
 				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
 		obj.part = first;
 
-		Part second = new Part(new Vector(0, 0.7), new Vector(0, 0), first, 0, 0.7f,
+		Part second = new Part(new Vector(0, 0.7), new Vector(0, 0), first, 0, 0.7f, 10000f,
 				ImageLoader.getImage("/DebugSnakeThing/Part2.png"),
 				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
-		first.connected.add(second);
+		// first.connected.add(second);
 
-		Part third = new Part(new Vector(0, 0.7), new Vector(0, 0), second, 0, 0.7f,
+		Part third = new Part(new Vector(0, 0.7), new Vector(0, 0), second, 0, 0.7f, 10000f,
 				ImageLoader.getImage("/DebugSnakeThing/Part3.png"),
 				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
 		second.connected.add(third);
 
-		Part fourth = new Part(new Vector(0, 0.7), new Vector(0, 0), third, 0, 0.7f,
+		Part fourth = new Part(new Vector(0, 0.7), new Vector(0, 0), third, 0, 0.7f, 10000f,
 				ImageLoader.getImage("/DebugSnakeThing/Part4.png"),
 				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
 		third.connected.add(fourth);
@@ -124,9 +128,8 @@ public class World {
 		camPos = camPos.add(camVel);
 
 		if (movingCamToPlayer) {
-			camVel = camVel.add(getPlayer().posInSpace.sub(camPos).div(100)).div(1.1f);
-			if (camPos.getLengthToSqrd(camVel) < 3)
-				movingCamToPlayer = false;
+			camVel = camVel.add(getPlayer().posInSpace.sub(camPos).div(10)).div(1.1f);
+
 		}
 
 		getPlayer().part.update();

@@ -1,2 +1,2 @@
 # SpacePortalGame
-A game about space and stuff.
+A game about space and stuff. Currently no portals.
