@@ -34,11 +34,14 @@ public class Part {
 
 	public ArrayList<Part> connected = new ArrayList<Part>();
 
-	public boolean DEBUG = true;
+	public boolean DEBUG = false;
 
 	public Vector lastPos;
 
 	public float weight;
+
+	public boolean isSpreadingForceToParents = false;
+	public Vector force, origin;
 
 	// (0, 0) is center
 	public ArrayList<LineSegment> collisionLines = new ArrayList<LineSegment>();
@@ -96,7 +99,7 @@ public class Part {
 
 				if (colMesh.getRGB(x, y) != 0) {
 					colMeshPixels.put(colMesh.getRGB(x, y) & 0x0000FF,
-							new Vector(x, y).sub(wh.div(2)).div(wh).mul(getDimensionsInSpace()));
+							new Vector(x + 0.5, y + 0.5).sub(wh.div(2)).div(wh).mul(getDimensionsInSpace()));
 				}
 			}
 		}
@@ -146,45 +149,56 @@ public class Part {
 						(int) pos2Screen.getY());
 			}
 
-			g2.drawString("" + (int) Math.toDegrees(getTotalRotation()), (int) myPosOnScreen.getX(),
-					(int) myPosOnScreen.getY());
+			g2.drawString("" + (int) Math.toDegrees(getTotalRotation()) + ", " + getLastVel(),
+					(int) myPosOnScreen.getX(), (int) myPosOnScreen.getY());
 		}
 
 		connected.forEach(part -> part.draw(g2, width, height));
 	}
 
 	public void update() {
-		LineSegment spaceVel = getSpaceVel();
+		LineSegment spaceVelLine = getSpaceVel();
+		Vector vel = spaceVelLine.pos2.sub(spaceVelLine.pos1);
 
 		rotation = (float) mod(rotation + rotationVel, Math.PI * 2);
 		rotationVel /= 1.01;
 
-		connected.forEach(Part::update);
+		hit: for (LineSegment colLine : getCollisionLinesInSpace()) {
+			LineSegment ls = new LineSegment(colLine.pos1, colLine.pos1.add(vel));
 
-		for (GameObject obj : objOwner.world.objects) {
-			if (obj != this.objOwner) {
-				hit: for (LineSegment ls : getCollisionLinesInSpace()) {
-					for (CollisionLineSegment cls : obj.getIntersectors(ls)) {
-						Vector collisionCenter = cls.intersection(ls);
+			for (CollisionLineSegment cls : objOwner.world.getCollisions(ls)) {
 
-						Vector colAngle = getPosInSpace().sub(collisionCenter);
+				if (cls.collision.objOwner == objOwner)
+					continue;
 
-						Vector bodyVel = spaceVel.getSpan();
+				applyForce(vel.mul(-1f), cls.collision.getPosInSpace());
+				cls.collision.applyForce(vel, getPosInSpace());
 
-						objOwner.applyForce(bodyVel.mul(-2));
-
-						break hit;
-
-					}
-				}
 			}
 		}
 
+		connected.forEach(Part::update);
+
+		if (isSpreadingForceToParents) {
+
+			Vector delta = getLastVel();
+			Vector deltaForce = force.sub(delta);
+
+			applyForceToParent(deltaForce.mul(0.8f), origin);
+
+			isSpreadingForceToParents = false;
+		}
+
 		lastPos = getPosInSpace();
+
+	}
+
+	public Vector getLastVel() {
+		return getPosInSpace().sub(lastPos);
 	}
 
 	public LineSegment getSpaceVel() {
-		return new LineSegment(lastPos, getPosInSpace());
+		return new LineSegment(lastPos == null ? getPosInSpace() : lastPos, getPosInSpace());
 	}
 
 	public float mod(double a, double b) {
@@ -237,31 +251,23 @@ public class Part {
 		return (int) (texture.getHeight() * getSizeWHRatio());
 	}
 
-	public void applyForceToParent(Vector force) {
+	public void applyForceToParent(Vector force, Vector origin) {
 		if (owner != null)
-			owner.applyForce(force);
+			owner.applyForce(force, origin.sub(connectionRelativeToOwner));
 		else
 			objOwner.applyForce(force);
 	}
 
 	// Note: May not be 100% physically accurate
-	public void applyForce(Vector force) {
-		System.out.println("Force: " + force);
-		
-		double velRot = -getRotation(force);
-		
-		double diff = mod(getTotalRotation() - velRot, Math.PI * 2);
-		
-		if (diff > Math.PI)
-			diff -= Math.PI * 2;
+	public void applyForce(Vector force, Vector origin) {
 
-		rotationVel -= diff * force.getLength();
+		Vector origin1 = origin.add(force);
+		float rot = getRotation(origin) - getRotation(origin1);
+		rotationVel += rot;
 
-		Vector pos = getPosInSpace();
-		update();
-		Vector delta = getPosInSpace().sub(pos);
-		Vector deltaForce = force.sub(delta);
-		applyForceToParent(deltaForce);
+		isSpreadingForceToParents = true;
+		this.force = force;
+		this.origin = origin;
 	}
 
 	public void applyRotationForce(double d) {
@@ -269,6 +275,9 @@ public class Part {
 	}
 
 	public ArrayList<CollisionLineSegment> getIntersectors(LineSegment ln) {
+		if (ln.pos1.getLengthTo(getPosInSpace()) > size && ln.pos2.getLengthTo(getPosInSpace()) > size)
+			return new ArrayList<CollisionLineSegment>();
+
 		ArrayList<CollisionLineSegment> intersectors = new ArrayList<CollisionLineSegment>();
 		for (LineSegment ls : getCollisionLinesInSpace()) {
 			if (ls.intersection(ln) != null) {

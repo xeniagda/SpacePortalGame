@@ -13,6 +13,7 @@ import com.loovjo.spg.gameobject.Part;
 import com.loovjo.spg.gameobject.Player;
 import com.loovjo.spg.gameobject.utils.CollisionLineSegment;
 import com.loovjo.spg.gameobject.utils.LineSegment;
+import com.loovjo.spg.gameobject.utils.Textures;
 
 public class World {
 
@@ -41,34 +42,35 @@ public class World {
 
 	public World() {
 		try {
-			background = ImageIO.read(Main.class.getResourceAsStream("/Space_background.jpg"));
+			background = Textures.BACKGROUND.toBufferedImage();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		Player player = new Player(this, new Vector(0, 0), "Player");
 
-		Part playerBody = new Part(new Vector(0, 0), new Vector(0, 0), player, 0, 1, 1,
-				ImageLoader.getImage("/Player/Body.png"), ImageLoader.getImage("/Player/Body_colmesh.png"));
-		Part armLeft1 = new Part(new Vector(-0.2, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI / 2 * 3, 0.5f, 1,
-				ImageLoader.getImage("/Player/Arm1.png"), ImageLoader.getImage("/Player/Arm1_colmesh.png"));
-		Part armRight1 = new Part(new Vector(0.2, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI / 2, 0.5f,
-				1, ImageLoader.getImage("/Player/Arm1.png"), ImageLoader.getImage("/Player/Arm1_colmesh.png"));
-		Part armLeft2 = new Part(new Vector(0, -0.2), new Vector(0, -0.2), armLeft1, 0, 0.4f, 1,
-				ImageLoader.getImage("/Player/Arm1.png"), ImageLoader.getImage("/Player/Arm1_colmesh.png"));
-		Part armRight2 = new Part(new Vector(0, -0.2), new Vector(0, -0.2), armRight1, 0, 0.4f, 1,
-				ImageLoader.getImage("/Player/Arm1.png"), ImageLoader.getImage("/Player/Arm1_colmesh.png"));
+		Part playerBody = new Part(new Vector(0, 0), new Vector(0, 0), player, 0, 1, 1, Textures.PLAYER_BODY,
+				Textures.PLAYER_BODY_COLMESH);
+		Part armLeft1 = new Part(new Vector(-0.2, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI / 2 * 3, 0.5f,
+				1, Textures.PLAYER_ARM, Textures.PLAYER_ARM_COLMESH);
+		Part armRight1 = new Part(new Vector(0.2, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI / 2, 0.5f, 1,
+				Textures.PLAYER_ARM, Textures.PLAYER_ARM_COLMESH);
+		Part armLeft2 = new Part(new Vector(0, -0.2), new Vector(0, -0.2), armLeft1, 0, 0.4f, 1, Textures.PLAYER_ARM,
+				Textures.PLAYER_ARM_COLMESH);
+		Part armRight2 = new Part(new Vector(0, -0.2), new Vector(0, -0.2), armRight1, 0, 0.4f, 1, Textures.PLAYER_ARM,
+				Textures.PLAYER_ARM_COLMESH);
 
-		Part head = new Part(new Vector(0, -0.5), new Vector(0, -0.3), playerBody, 0, 0.7f, 1,
-				ImageLoader.getImage("/Player/Head.png"), ImageLoader.getImage("/Player/Head_colmesh.png"));
+		Part head = new Part(new Vector(0, -0.5), new Vector(0, -0.3), playerBody, 0, 0.7f, 1, Textures.PLAYER_HEAD,
+				Textures.PLAYER_HEAD_COLMESH);
 
 		armLeft1.connected.add(armLeft2);
 		armRight1.connected.add(armRight2);
 
-		playerBody.connected.add(armLeft1);
-		playerBody.connected.add(armRight1);
-		playerBody.connected.add(head);
-
+		if (true) {
+			playerBody.connected.add(armLeft1);
+			playerBody.connected.add(armRight1);
+			playerBody.connected.add(head);
+		}
 		player.part = playerBody;
 
 		objects.add(player);
@@ -120,8 +122,13 @@ public class World {
 		return getPlayer().part.connected.get(0).connected.get(0);
 	}
 
-	public void update() {
+	public void updateWorld() {
 		tick++;
+		getPlayer().part.update();
+		objects.forEach(GameObject::update);
+	}
+
+	public void updateCamera() {
 
 		camVel = camVel.add(camAccel.div(100));
 		camVel = camVel.div(1.1f);
@@ -132,8 +139,6 @@ public class World {
 
 		}
 
-		getPlayer().part.update();
-		objects.forEach(GameObject::update);
 	}
 
 	public ArrayList<CollisionLineSegment> getCollisions(LineSegment line) {

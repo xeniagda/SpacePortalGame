@@ -1,7 +1,9 @@
 package com.loovjo.spg;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
@@ -22,16 +24,27 @@ public class GameScene implements Scene {
 
 	public Vector lastPos = new Vector(0, 0), currentPos = new Vector(0, 0);
 
+	public boolean paused = false;
+
+	public void load() {
+		world = new World();
+		world.updateWorld();
+	}
+
 	@Override
 	public void update() {
-		world.update();
+		if (!paused)
+			world.updateWorld();
+		
+		world.updateCamera();
 
 	}
 
 	@Override
-	public void render(Graphics g, int width, int height) {
+	public void render(Graphics g_, int width, int height) {
+		world.draw(g_, width, height);
 
-		world.draw(g, width, height);
+		Graphics2D g = (Graphics2D) g_;
 
 		ArrayList<CollisionLineSegment> intersectors = world.getCollisions(
 				new LineSegment(world.transformScreenToSpace(lastPos), world.transformScreenToSpace(currentPos)));
@@ -47,7 +60,16 @@ public class GameScene implements Scene {
 		if (intersectors.size() > 0) {
 			g.setColor(Color.black);
 		}
-		g.drawLine((int) lastPos.getX(), (int) lastPos.getY(), (int) currentPos.getX(), (int) currentPos.getY());
+		if (holding == 3) {
+			for (int i = 0; i < 3; i++) {
+				Vector force = currentPos.sub(lastPos).div((float) Math.pow(10, i));
+				if (intersectors.size() == 0)
+					g.setColor(new Color[] { Color.red, Color.blue, Color.green }[i]);
+				g.setStroke(new BasicStroke(i * 2));
+				g.drawLine((int) lastPos.getX(), (int) lastPos.getY(), (int) (lastPos.getX() + force.getX()),
+						(int) (lastPos.getY() + force.getY()));
+			}
+		}
 
 	}
 
@@ -86,7 +108,7 @@ public class GameScene implements Scene {
 		if (holding == 3) {
 			Vector diff = world.transformScreenToSpace(currentPos).sub(world.transformScreenToSpace(lastPos));
 
-			world.active.applyForce(diff.div(100));
+			world.active.applyForce(diff.div(100), world.transformScreenToSpace(currentPos));
 
 			lastPos = pos;
 
@@ -113,11 +135,17 @@ public class GameScene implements Scene {
 
 		if (keyCode == KeyEvent.VK_SPACE)
 			world.movingCamToPlayer = !world.movingCamToPlayer;
+		if (keyCode == KeyEvent.VK_ESCAPE)
+			paused = !paused;
 
 		if (keyCode == KeyEvent.VK_1)
 			world.zoom *= 1.3;
 		if (keyCode == KeyEvent.VK_2)
 			world.zoom /= 1.3;
+
+		if (keyCode == KeyEvent.VK_R) {
+			load();
+		}
 
 		if (keyCode == KeyEvent.VK_Z)
 			world.getPlayer().part.applyRotationForce(0.1);
@@ -145,7 +173,7 @@ public class GameScene implements Scene {
 
 	@Override
 	public void mouseWheal(MouseWheelEvent e) {
-		
+
 	}
 
 }
