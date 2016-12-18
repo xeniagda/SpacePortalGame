@@ -26,18 +26,46 @@ public class GameScene implements Scene {
 
 	public boolean paused = false;
 
+	public Thread updateThread;
+
+	public GameScene() {
+		updateThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				long lastTime = System.currentTimeMillis();
+
+				while (true) {
+					try { Thread.sleep(10); } 
+					catch (InterruptedException e) { e.printStackTrace(); }
+
+					long delta = System.currentTimeMillis() - lastTime;
+					lastTime = System.currentTimeMillis();
+
+					update_(delta / 1000f);
+
+				}
+			}
+		});
+		updateThread.start();
+	}
+
 	public void load() {
 		world = new World();
-		world.updateWorld();
+		world.updateWorld(1 / 60f);
 	}
 
 	@Override
 	public void update() {
-		if (!paused)
-			world.updateWorld();
-		
-		world.updateCamera();
 
+	}
+
+	public void update_(float timeStep) {
+		if (!paused)
+			world.updateWorld(timeStep);
+
+		world.updateCamera(timeStep);
 	}
 
 	@Override
@@ -108,7 +136,7 @@ public class GameScene implements Scene {
 		if (holding == 3) {
 			Vector diff = world.transformScreenToSpace(currentPos).sub(world.transformScreenToSpace(lastPos));
 
-			world.active.applyForce(diff.div(100), world.transformScreenToSpace(currentPos));
+			world.active.applyForce(diff, world.transformScreenToSpace(currentPos));
 
 			lastPos = pos;
 
@@ -120,7 +148,7 @@ public class GameScene implements Scene {
 	public void mouseMoved(Vector pos) {
 		if (holding == 1) {
 			Vector delta = lastPos.sub(pos);
-			world.camVel = world.camVel.add(delta.div(world.zoom).div(5));
+			world.camVel = world.camVel.add(delta.div(world.zoom).mul(12));
 			lastPos = pos;
 		}
 		if (holding == -1) {

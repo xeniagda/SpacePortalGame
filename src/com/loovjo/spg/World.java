@@ -36,7 +36,7 @@ public class World {
 	public int width, height;
 
 	public float DEFAULT_SPREAD = 0.3f;
-	public float FRICTION = 1.004f;
+	public float FRICTION = 2f;
 
 	public Part active = null;
 
@@ -53,6 +53,9 @@ public class World {
 				Textures.PLAYER_BODY_COLMESH);
 		Part armLeft1 = new Part(new Vector(-0.2, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI / 2 * 3, 0.5f,
 				1, Textures.PLAYER_ARM, Textures.PLAYER_ARM_COLMESH);
+
+		armLeft1.setRotLimit(9 * Math.PI / 4, 3 * Math.PI / 4);
+
 		Part armRight1 = new Part(new Vector(0.2, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI / 2, 0.5f, 1,
 				Textures.PLAYER_ARM, Textures.PLAYER_ARM_COLMESH);
 		Part armLeft2 = new Part(new Vector(0, -0.2), new Vector(0, -0.2), armLeft1, 0, 0.4f, 1, Textures.PLAYER_ARM,
@@ -73,11 +76,22 @@ public class World {
 		}
 		player.part = playerBody;
 
+
+		loadSnake();		
+		// loadSpaceShip();
+		
 		objects.add(player);
-
-		loadSnake();
-
+		
 		active = getPlayer().part;
+	}
+	
+	public void loadSpaceShip() {
+		GameObject spaceShip = new GameObject(this, new Vector(0, 0), "SpaceShip");
+		
+		Part mainRoom = new Part(new Vector(0, 0), new Vector(0, 0), spaceShip, 0, 3, 4, Textures.SPACE_SHIP_MAIN_ROOM, Textures.SPACE_SHIP_MAIN_ROOM_COLMESH);
+		spaceShip.part = mainRoom;
+		
+		objects.add(spaceShip);
 	}
 
 	public void loadSnake() {
@@ -114,7 +128,6 @@ public class World {
 				(int) -camPos.getY() - background.getHeight() / 2, null);
 
 		getPlayer().draw(g, width, height);
-
 		objects.forEach(obj -> obj.draw(g, width, height));
 	}
 
@@ -122,21 +135,19 @@ public class World {
 		return getPlayer().part.connected.get(0).connected.get(0);
 	}
 
-	public void updateWorld() {
+	public void updateWorld(float timeStep) {
 		tick++;
-		getPlayer().part.update();
-		objects.forEach(GameObject::update);
+		objects.forEach(o -> o.update(timeStep));
 	}
 
-	public void updateCamera() {
+	public void updateCamera(float timeStep) {
 
-		camVel = camVel.add(camAccel.div(100));
-		camVel = camVel.div(1.1f);
-		camPos = camPos.add(camVel);
+		camVel = camVel.add(camAccel.mul(timeStep));
+		camVel = camVel.div((float)Math.pow(304f, timeStep));
+		camPos = camPos.add(camVel.mul(timeStep));
 
 		if (movingCamToPlayer) {
-			camVel = camVel.add(getPlayer().posInSpace.sub(camPos).div(10)).div(1.1f);
-
+			camVel = camVel.add(getPlayer().posInSpace.sub(camPos).mul(timeStep)).div(1.1f);
 		}
 
 	}

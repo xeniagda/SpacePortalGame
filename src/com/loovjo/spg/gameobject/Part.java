@@ -17,8 +17,6 @@ import com.loovjo.spg.gameobject.utils.LineSegment;
 
 public class Part {
 
-	public boolean RENDER_DEBUG = false;
-
 	public Vector connectionRelativeToOwner; // Center
 	public Vector connectionRelativeToMe; // Compared to center
 
@@ -34,7 +32,7 @@ public class Part {
 
 	public ArrayList<Part> connected = new ArrayList<Part>();
 
-	public boolean DEBUG = false;
+	public boolean DEBUG = true;
 
 	public Vector lastPos;
 
@@ -42,6 +40,10 @@ public class Part {
 
 	public boolean isSpreadingForceToParents = false;
 	public Vector force, origin;
+
+	public boolean hasRotLimit = false;
+	public float rotLimitMin = 0;
+	public float rotLimitMax = 0;
 
 	// (0, 0) is center
 	public ArrayList<LineSegment> collisionLines = new ArrayList<LineSegment>();
@@ -89,6 +91,12 @@ public class Part {
 		setColMesh(colMesh);
 	}
 
+	public void setRotLimit(double min, double max) {
+		hasRotLimit = true;
+		rotLimitMin = (float) min + rotation;
+		rotLimitMax = (float) max + rotation;
+	}
+
 	public void setColMesh(FastImage colMesh) {
 
 		HashMap<Integer, Vector> colMeshPixels = new HashMap<Integer, Vector>();
@@ -98,17 +106,20 @@ public class Part {
 			for (int y = 0; y < colMesh.getHeight(); y++) {
 
 				if (colMesh.getRGB(x, y) != 0) {
-					colMeshPixels.put(colMesh.getRGB(x, y) & 0x0000FF,
+					colMeshPixels.put(colMesh.getRGB(x, y) & 0x00FFFF,
 							new Vector(x + 0.5, y + 0.5).sub(wh.div(2)).div(wh).mul(getDimensionsInSpace()));
 				}
 			}
 		}
-
-		for (int r = 0; r < 256; r++) {
-			if (colMeshPixels.containsKey(r) && colMeshPixels.containsKey(r + 1)) {
-				Vector p1 = colMeshPixels.get(r);
-				Vector p2 = colMeshPixels.get(r + 1);
-				collisionLines.add(new LineSegment(p1, p2));
+		for (int g = 0; g < 256; g++) {
+			for (int b = 0; b < 255; b++) {
+				int key = 256 * g + b;
+				int next = 256 * g + b + 1;
+				if (colMeshPixels.containsKey(key) && colMeshPixels.containsKey(next)) {
+					Vector p1 = colMeshPixels.get(key);
+					Vector p2 = colMeshPixels.get(next);
+					collisionLines.add(new LineSegment(p1, p2));
+				}
 			}
 		}
 
@@ -149,22 +160,36 @@ public class Part {
 						(int) pos2Screen.getY());
 			}
 
-			g2.drawString("" + (int) Math.toDegrees(getTotalRotation()) + ", " + getLastVel(),
-					(int) myPosOnScreen.getX(), (int) myPosOnScreen.getY());
+			// g2.drawString("" + (int) Math.toDegrees(getTotalRotation()) + ",
+			// " + getLastVel(), (int) myPosOnScreen.getX(), (int)
+			// myPosOnScreen.getY());
 		}
 
 		connected.forEach(part -> part.draw(g2, width, height));
 	}
 
-	public void update() {
-		LineSegment spaceVelLine = getSpaceVel();
-		Vector vel = spaceVelLine.pos2.sub(spaceVelLine.pos1);
+	public void update(float timeStep) {
 
-		rotation = (float) mod(rotation + rotationVel, Math.PI * 2);
-		rotationVel /= 1.01;
+		LineSegment spaceVelLine = getSpaceVel();
+		Vector vel = spaceVelLine.pos2.sub(spaceVelLine.pos1).div(timeStep);
+		Vector stepVel = spaceVelLine.pos2.sub(spaceVelLine.pos1);
+
+		rotation = (float) mod(rotation + rotationVel * timeStep, Math.PI * 2);
+		rotationVel /= Math.pow(objOwner.world.FRICTION, timeStep);
+
+		if (hasRotLimit) {
+			if (rotation < rotLimitMin) {
+				rotation = rotLimitMin;
+				rotationVel *= -0.5;
+			}
+			if (rotation > rotLimitMax) {
+				rotation = rotLimitMax;
+				rotationVel *= -0.5;
+			}
+		}
 
 		hit: for (LineSegment colLine : getCollisionLinesInSpace()) {
-			LineSegment ls = new LineSegment(colLine.pos1, colLine.pos1.add(vel));
+			LineSegment ls = new LineSegment(colLine.pos1, colLine.pos1.add(stepVel));
 
 			for (CollisionLineSegment cls : objOwner.world.getCollisions(ls)) {
 
@@ -177,7 +202,7 @@ public class Part {
 			}
 		}
 
-		connected.forEach(Part::update);
+		connected.forEach(part -> part.update(timeStep));
 
 		if (isSpreadingForceToParents) {
 
@@ -259,8 +284,9 @@ public class Part {
 	}
 
 	// Note: May not be 100% physically accurate
-	public void applyForce(Vector force, Vector origin) {
-
+	public void applyForce(Vector force, Vector originInSpace) {
+		Vector origin = getPosInSpace().sub(originInSpace);
+		
 		Vector origin1 = origin.add(force);
 		float rot = getRotation(origin) - getRotation(origin1);
 		rotationVel += rot;

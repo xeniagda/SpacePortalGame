@@ -9,50 +9,51 @@ import com.loovjo.spg.gameobject.utils.CollisionLineSegment;
 import com.loovjo.spg.gameobject.utils.LineSegment;
 
 public class GameObject {
-	
+
 	public Vector posInSpace; // Center
-	
+
 	public Vector vel;
-	
+
 	public Part part;
-	
+
 	public World world;
-	
+
 	public String name;
-	
+
 	public GameObject(World world, Vector posInSpace, String name) {
 		this.world = world;
 		this.posInSpace = posInSpace;
-		
+
 		vel = new Vector(0, 0);
-		
+
 		this.name = name;
 	}
-	
+
 	public void draw(Graphics g, int width, int height) {
 		part.draw(g, width, height);
 	}
-	
-	public void update() {
-		part.update();
-		posInSpace = posInSpace.add(vel);
+
+	public void update(float timeStep) {
+		part.update(timeStep);
 		
-		vel = vel.div(world.FRICTION);
-		
+		posInSpace = posInSpace.add(vel.mul(timeStep));
+
+		vel = vel.div((float) Math.pow(world.FRICTION, timeStep));
+
 	}
-	
+
 	public ArrayList<CollisionLineSegment> getIntersectors(LineSegment ln) {
 		return part.getIntersectors(ln);
 	}
 
 	public void applyForce(Vector force) {
 		System.out.println("Force: " + force);
-		
+
 		vel = vel.add(force);
 	}
-	
+
 	public String toString() {
 		return "GameObject(name=\"" + name + "\")";
 	}
-	
+
 }
