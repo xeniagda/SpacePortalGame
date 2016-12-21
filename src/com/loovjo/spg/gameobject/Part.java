@@ -98,7 +98,9 @@ public class Part {
 	}
 
 	public void setColMesh(FastImage colMesh) {
-
+		
+		System.out.println(objOwner.name);
+		
 		HashMap<Integer, Vector> colMeshPixels = new HashMap<Integer, Vector>();
 		Vector wh = new Vector(colMesh.getWidth(), colMesh.getHeight());
 
@@ -111,6 +113,7 @@ public class Part {
 				}
 			}
 		}
+		System.out.println(colMeshPixels);
 		for (int g = 0; g < 256; g++) {
 			for (int b = 0; b < 255; b++) {
 				int key = 256 * g + b;
@@ -174,8 +177,8 @@ public class Part {
 		Vector vel = spaceVelLine.pos2.sub(spaceVelLine.pos1).div(timeStep);
 		Vector stepVel = spaceVelLine.pos2.sub(spaceVelLine.pos1);
 
-		rotation = (float) mod(rotation + rotationVel * timeStep, Math.PI * 2);
-		rotationVel /= Math.pow(objOwner.world.FRICTION, timeStep);
+		rotation = rotation + rotationVel * timeStep;
+		// rotationVel /= Math.pow(objOwner.world.FRICTION, timeStep);
 
 		if (hasRotLimit) {
 			if (rotation < rotLimitMin) {
@@ -187,17 +190,17 @@ public class Part {
 				rotationVel *= -0.5;
 			}
 		}
-
+		
 		hit: for (LineSegment colLine : getCollisionLinesInSpace()) {
 			LineSegment ls = new LineSegment(colLine.pos1, colLine.pos1.add(stepVel));
 
 			for (CollisionLineSegment cls : objOwner.world.getCollisions(ls)) {
-
+				
 				if (cls.collision.objOwner == objOwner)
 					continue;
-
-				applyForce(vel.mul(-1f), cls.collision.getPosInSpace());
-				cls.collision.applyForce(vel, getPosInSpace());
+				
+				applyForce(vel.mul(-cls.collision.weight / weight), cls.collision.getPosInSpace());
+				cls.collision.applyForce(vel.mul(weight / cls.collision.weight), getPosInSpace());
 
 			}
 		}
@@ -285,15 +288,22 @@ public class Part {
 
 	// Note: May not be 100% physically accurate
 	public void applyForce(Vector force, Vector originInSpace) {
-		Vector origin = getPosInSpace().sub(originInSpace);
 		
-		Vector origin1 = origin.add(force);
-		float rot = getRotation(origin) - getRotation(origin1);
-		rotationVel += rot;
+		force = force.div(5);
+		
+		Vector forceRelToMe = force.add(originInSpace).sub(getPosInSpace());
+		Vector originRelativeToMe = originInSpace.sub(getPosInSpace());
+
+		double forceVel = Math.toRadians(forceRelToMe.getRotation());
+		double originVel = Math.toRadians(originRelativeToMe.getRotation());
+		double vel = (originVel - forceVel) * 25;
+
+		rotationVel += (float) vel;
 
 		isSpreadingForceToParents = true;
-		this.force = force;
-		this.origin = origin;
+		this.force = force.mul(5);
+		this.origin = originInSpace;
+
 	}
 
 	public void applyRotationForce(double d) {

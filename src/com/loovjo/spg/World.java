@@ -54,8 +54,6 @@ public class World {
 		Part armLeft1 = new Part(new Vector(-0.2, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI / 2 * 3, 0.5f,
 				1, Textures.PLAYER_ARM, Textures.PLAYER_ARM_COLMESH);
 
-		armLeft1.setRotLimit(9 * Math.PI / 4, 3 * Math.PI / 4);
-
 		Part armRight1 = new Part(new Vector(0.2, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI / 2, 0.5f, 1,
 				Textures.PLAYER_ARM, Textures.PLAYER_ARM_COLMESH);
 		Part armLeft2 = new Part(new Vector(0, -0.2), new Vector(0, -0.2), armLeft1, 0, 0.4f, 1, Textures.PLAYER_ARM,
@@ -65,6 +63,12 @@ public class World {
 
 		Part head = new Part(new Vector(0, -0.5), new Vector(0, -0.3), playerBody, 0, 0.7f, 1, Textures.PLAYER_HEAD,
 				Textures.PLAYER_HEAD_COLMESH);
+
+		armLeft1.setRotLimit(-Math.PI / 2, Math.PI / 2);
+		armRight1.setRotLimit(-Math.PI / 2, Math.PI / 2);
+		armLeft2.setRotLimit(-Math.PI, Math.PI);
+		armRight2.setRotLimit(-Math.PI, Math.PI);
+		head.setRotLimit(-Math.PI / 2, Math.PI / 2);
 
 		armLeft1.connected.add(armLeft2);
 		armRight1.connected.add(armRight2);
@@ -76,19 +80,19 @@ public class World {
 		}
 		player.part = playerBody;
 
+		loadSnake();
+		loadSpaceShip();
 
-		loadSnake();		
-		// loadSpaceShip();
-		
 		objects.add(player);
-		
+
 		active = getPlayer().part;
 	}
-	
+
 	public void loadSpaceShip() {
 		GameObject spaceShip = new GameObject(this, new Vector(0, 0), "SpaceShip");
-		
-		Part mainRoom = new Part(new Vector(0, 0), new Vector(0, 0), spaceShip, 0, 3, 4, Textures.SPACE_SHIP_MAIN_ROOM, Textures.SPACE_SHIP_MAIN_ROOM_COLMESH);
+
+		Part mainRoom = new Part(new Vector(0, 0), new Vector(0, 0), spaceShip, 0, 10, 4, Textures.SPACE_SHIP_MAIN_ROOM,
+				Textures.SPACE_SHIP_MAIN_ROOM_COLMESH);
 		spaceShip.part = mainRoom;
 		
 		objects.add(spaceShip);
@@ -143,7 +147,7 @@ public class World {
 	public void updateCamera(float timeStep) {
 
 		camVel = camVel.add(camAccel.mul(timeStep));
-		camVel = camVel.div((float)Math.pow(304f, timeStep));
+		camVel = camVel.div((float) Math.pow(304f, timeStep));
 		camPos = camPos.add(camVel.mul(timeStep));
 
 		if (movingCamToPlayer) {
