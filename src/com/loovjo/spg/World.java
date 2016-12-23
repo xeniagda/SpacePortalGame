@@ -4,8 +4,6 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
-
 import com.loovjo.loo2D.utils.ImageLoader;
 import com.loovjo.loo2D.utils.Vector;
 import com.loovjo.spg.gameobject.GameObject;
@@ -37,6 +35,9 @@ public class World {
 
 	public float DEFAULT_SPREAD = 0.3f;
 	public float FRICTION = 2f;
+
+	public static float MAX_SPEED = 10;
+	public static float MAX_ROT = 3;
 
 	public Part active = null;
 
@@ -91,15 +92,15 @@ public class World {
 	public void loadSpaceShip() {
 		GameObject spaceShip = new GameObject(this, new Vector(0, 0), "SpaceShip");
 
-		Part mainRoom = new Part(new Vector(0, 0), new Vector(0, 0), spaceShip, 0, 10, 4, Textures.SPACE_SHIP_MAIN_ROOM,
-				Textures.SPACE_SHIP_MAIN_ROOM_COLMESH);
+		Part mainRoom = new Part(new Vector(0, 0), new Vector(0, 0), spaceShip, 0, 10, 400,
+				Textures.SPACE_SHIP_MAIN_ROOM, Textures.SPACE_SHIP_MAIN_ROOM_COLMESH);
 		spaceShip.part = mainRoom;
-		
+
 		objects.add(spaceShip);
 	}
 
 	public void loadSnake() {
-		GameObject obj = new GameObject(this, new Vector(3, 0), "Snake");
+		GameObject obj = new GameObject(this, new Vector(10, 0), "Snake");
 		Part first = new Part(new Vector(0, 0), new Vector(0, 0), obj, 0, 0.7f, 10000f,
 				ImageLoader.getImage("/DebugSnakeThing/Part1.png"),
 				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
@@ -151,7 +152,7 @@ public class World {
 		camPos = camPos.add(camVel.mul(timeStep));
 
 		if (movingCamToPlayer) {
-			camVel = camVel.add(getPlayer().posInSpace.sub(camPos).mul(timeStep)).div(1.1f);
+			camVel = camVel.add(getPlayer().posInSpace.sub(camPos).mul(timeStep));
 		}
 
 	}

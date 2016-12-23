@@ -19,9 +19,9 @@ public class CollisionLineSegment extends LineSegment {
 		super(ls.pos1, ls.pos2);
 		this.collision = collision;
 	}
-	
+
 	public String toString() {
 		return "Cls(pos1=" + pos1 + ", pos2=" + pos2 + ", col=" + collision + ")";
 	}
-	
+
 }

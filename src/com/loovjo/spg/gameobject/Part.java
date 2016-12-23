@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.loovjo.loo2D.utils.FastImage;
 import com.loovjo.loo2D.utils.Vector;
+import com.loovjo.spg.World;
 import com.loovjo.spg.gameobject.utils.CollisionLineSegment;
 import com.loovjo.spg.gameobject.utils.LineSegment;
 
@@ -32,7 +33,7 @@ public class Part {
 
 	public ArrayList<Part> connected = new ArrayList<Part>();
 
-	public boolean DEBUG = true;
+	public boolean DEBUG = false;
 
 	public Vector lastPos;
 
@@ -45,8 +46,12 @@ public class Part {
 	public float rotLimitMin = 0;
 	public float rotLimitMax = 0;
 
+	public float collisionTime = 0;
+
 	// (0, 0) is center
 	public ArrayList<LineSegment> collisionLines = new ArrayList<LineSegment>();
+
+	private Vector __vel = new Vector(0, 0);
 
 	public Part(Vector connectionRelativeToOwner, Vector connectionRelativeToMe, Part owner, float rotation, float size,
 			float weight, FastImage texture) {
@@ -60,7 +65,6 @@ public class Part {
 
 		this.weight = weight;
 
-		this.lastPos = owner.getPosInSpace();
 		// this.collisionLines.add(new LineSegment(new Vector(-0.3, 0.3), new
 		// Vector(0, -1)));
 	}
@@ -98,9 +102,7 @@ public class Part {
 	}
 
 	public void setColMesh(FastImage colMesh) {
-		
-		System.out.println(objOwner.name);
-		
+
 		HashMap<Integer, Vector> colMeshPixels = new HashMap<Integer, Vector>();
 		Vector wh = new Vector(colMesh.getWidth(), colMesh.getHeight());
 
@@ -113,7 +115,6 @@ public class Part {
 				}
 			}
 		}
-		System.out.println(colMeshPixels);
 		for (int g = 0; g < 256; g++) {
 			for (int b = 0; b < 255; b++) {
 				int key = 256 * g + b;
@@ -166,6 +167,17 @@ public class Part {
 			// g2.drawString("" + (int) Math.toDegrees(getTotalRotation()) + ",
 			// " + getLastVel(), (int) myPosOnScreen.getX(), (int)
 			// myPosOnScreen.getY());
+
+			g.setColor(new Color((int) (255 - collisionTime), (int) collisionTime, 0));
+
+			Vector velPosOnScreen = objOwner.world.transformSpaceToScreen(getPosInSpace().add(getVel()));
+			g2.drawLine((int) myPosOnScreen.getX(), (int) myPosOnScreen.getY(), (int) velPosOnScreen.getX(),
+					(int) velPosOnScreen.getY());
+			
+			g.setColor(Color.BLUE);
+			velPosOnScreen = objOwner.world.transformSpaceToScreen(getPosInSpace().add(getStepVel()));
+			g2.drawLine((int) myPosOnScreen.getX(), (int) myPosOnScreen.getY(), (int) velPosOnScreen.getX(),
+					(int) velPosOnScreen.getY());
 		}
 
 		connected.forEach(part -> part.draw(g2, width, height));
@@ -173,9 +185,8 @@ public class Part {
 
 	public void update(float timeStep) {
 
-		LineSegment spaceVelLine = getSpaceVel();
-		Vector vel = spaceVelLine.pos2.sub(spaceVelLine.pos1).div(timeStep);
-		Vector stepVel = spaceVelLine.pos2.sub(spaceVelLine.pos1);
+		Vector spaceVel = getStepVel();
+		__setVel(spaceVel.div(timeStep));
 
 		rotation = rotation + rotationVel * timeStep;
 		// rotationVel /= Math.pow(objOwner.world.FRICTION, timeStep);
@@ -190,26 +201,28 @@ public class Part {
 				rotationVel *= -0.5;
 			}
 		}
-		
-		hit: for (LineSegment colLine : getCollisionLinesInSpace()) {
-			LineSegment ls = new LineSegment(colLine.pos1, colLine.pos1.add(stepVel));
+		if (rotationVel > World.MAX_ROT)
+			rotationVel = World.MAX_ROT;
+		if (rotationVel < -World.MAX_ROT)
+			rotationVel = -World.MAX_ROT;
 
-			for (CollisionLineSegment cls : objOwner.world.getCollisions(ls)) {
-				
-				if (cls.collision.objOwner == objOwner)
-					continue;
-				
-				applyForce(vel.mul(-cls.collision.weight / weight), cls.collision.getPosInSpace());
-				cls.collision.applyForce(vel.mul(weight / cls.collision.weight), getPosInSpace());
+		for (GameObject obj : objOwner.world.objects) {
+			if (obj == this.objOwner)
+				continue;
 
-			}
+			checkCollosion(obj.part);
+			
 		}
+
+		collisionTime = 255;
+
+		collisionTime = Math.max(collisionTime - timeStep * 255, 0);
 
 		connected.forEach(part -> part.update(timeStep));
 
 		if (isSpreadingForceToParents) {
 
-			Vector delta = getLastVel();
+			Vector delta = getStepVel();
 			Vector deltaForce = force.sub(delta);
 
 			applyForceToParent(deltaForce.mul(0.8f), origin);
@@ -221,12 +234,47 @@ public class Part {
 
 	}
 
-	public Vector getLastVel() {
-		return getPosInSpace().sub(lastPos);
+	// Note: This assumes that very big objects doesn't move very quickly or
+	// rotates fast.
+	private void checkCollosion(Part part) {
+
+		for (LineSegment colLine : getCollisionLinesInSpace()) {
+			
+			LineSegment ls = new LineSegment(colLine.pos1, colLine.pos1
+					.add(getStepVel().mul(part.getVel().getLength() + Math.abs(part.rotationVel) * part.size + 5)));
+
+			for (CollisionLineSegment cls : part.getIntersectors(ls)) {
+				
+				System.out.println(getID() + "<->" + part.getID());
+				
+				Vector back = getVel().add(cls.collision.getStepVel());
+				
+				
+				applyForce(back.mul(-weight * 2), cls.collision.getPosInSpace());
+				cls.collision.applyForce(back.div(cls.collision.weight), getPosInSpace());
+			}
+		}
+
+		part.connected.forEach(p -> checkCollosion(p));
 	}
 
-	public LineSegment getSpaceVel() {
-		return new LineSegment(lastPos == null ? getPosInSpace() : lastPos, getPosInSpace());
+	public String getID() {
+		if (owner == null) {
+			return objOwner.name;
+		}
+		return owner.getID() + "@" + owner.connected.indexOf(this);
+	}
+
+	public Vector getStepVel() {
+		return lastPos == null ? new Vector(0, 0) : getPosInSpace().sub(lastPos);
+	}
+
+	public Vector getVel() {
+		return __vel;
+	}
+
+	private void __setVel(Vector vel) {
+		this.__vel = vel;
 	}
 
 	public float mod(double a, double b) {
@@ -288,9 +336,9 @@ public class Part {
 
 	// Note: May not be 100% physically accurate
 	public void applyForce(Vector force, Vector originInSpace) {
-		
+
 		force = force.div(5);
-		
+
 		Vector forceRelToMe = force.add(originInSpace).sub(getPosInSpace());
 		Vector originRelativeToMe = originInSpace.sub(getPosInSpace());
 
@@ -311,6 +359,7 @@ public class Part {
 	}
 
 	public ArrayList<CollisionLineSegment> getIntersectors(LineSegment ln) {
+
 		if (ln.pos1.getLengthTo(getPosInSpace()) > size && ln.pos2.getLengthTo(getPosInSpace()) > size)
 			return new ArrayList<CollisionLineSegment>();
 

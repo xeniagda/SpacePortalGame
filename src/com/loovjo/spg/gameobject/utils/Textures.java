@@ -6,6 +6,7 @@ import com.loovjo.loo2D.utils.ImageLoader;
 public class Textures {
 	
 	public static final FastImage BACKGROUND = ImageLoader.getImage("/Space_background.jpg");
+	
 	public static final FastImage PLAYER_BODY = ImageLoader.getImage("/Player/Body.png");
 	public static final FastImage PLAYER_BODY_COLMESH = ImageLoader.getImage("/Player/Body_colmesh.png");
 	public static final FastImage PLAYER_ARM = ImageLoader.getImage("/Player/Arm1.png");

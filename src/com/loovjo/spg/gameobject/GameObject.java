@@ -38,8 +38,12 @@ public class GameObject {
 		
 		posInSpace = posInSpace.add(vel.mul(timeStep));
 
-		vel = vel.div((float) Math.pow(world.FRICTION, timeStep));
-
+		// vel = vel.div((float) Math.pow(world.FRICTION, timeStep));
+		
+		if (vel.getLength() > World.MAX_SPEED) {
+			vel.setLength(World.MAX_SPEED);
+		}
+		
 	}
 
 	public ArrayList<CollisionLineSegment> getIntersectors(LineSegment ln) {
@@ -47,7 +51,6 @@ public class GameObject {
 	}
 
 	public void applyForce(Vector force) {
-		System.out.println("Force: " + force);
 
 		vel = vel.add(force);
 	}

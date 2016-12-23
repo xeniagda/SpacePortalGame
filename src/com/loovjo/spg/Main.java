@@ -14,7 +14,6 @@ public class Main extends MainWindow {
 
 	public static void main(String[] args) {
 		FileLoader.setLoaderClass(Main.class);
-		DRAW_DEBUG = true;
 		
 		new Main();
 	}

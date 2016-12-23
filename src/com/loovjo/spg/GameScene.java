@@ -2,6 +2,7 @@ package com.loovjo.spg;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
@@ -18,17 +19,27 @@ import com.loovjo.spg.gameobject.utils.LineSegment;
 
 public class GameScene implements Scene {
 
-	public World world = new World();
+	public float SPEED_FAST = 0.001f;
+	public float SPEED_SLOW = 0.00001f;
+
+	public World world;
 
 	public int holding = -1;
 
 	public Vector lastPos = new Vector(0, 0), currentPos = new Vector(0, 0);
 
-	public boolean paused = false;
+	public boolean paused = true;
 
 	public Thread updateThread;
 
+	public float speed = 0.001f;
+
+	public boolean goingFast = true;
+
 	public GameScene() {
+
+		load();
+		
 		updateThread = new Thread(new Runnable() {
 
 			@Override
@@ -37,13 +48,16 @@ public class GameScene implements Scene {
 				long lastTime = System.currentTimeMillis();
 
 				while (true) {
-					try { Thread.sleep(10); } 
-					catch (InterruptedException e) { e.printStackTrace(); }
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 
 					long delta = System.currentTimeMillis() - lastTime;
 					lastTime = System.currentTimeMillis();
 
-					update_(delta / 1000f);
+					update_(delta * speed);
 
 				}
 			}
@@ -53,12 +67,10 @@ public class GameScene implements Scene {
 
 	public void load() {
 		world = new World();
-		world.updateWorld(1 / 60f);
 	}
 
 	@Override
 	public void update() {
-
 	}
 
 	public void update_(float timeStep) {
@@ -98,6 +110,12 @@ public class GameScene implements Scene {
 						(int) (lastPos.getY() + force.getY()));
 			}
 		}
+		int fontSize = 12;
+		g.setFont(new Font("Helvetica Nueue", Font.BOLD, fontSize));
+		g.setColor(Color.white);
+		
+		g.drawString("Active: " + (world.active == null ? "None" : world.active.getID()), 0, fontSize);
+		g.drawString("Speed: " + speed, 0, 2 * fontSize);
 
 	}
 
@@ -162,7 +180,7 @@ public class GameScene implements Scene {
 	public void keyPressed(int keyCode) {
 
 		if (keyCode == KeyEvent.VK_SPACE)
-			world.movingCamToPlayer = !world.movingCamToPlayer;
+			world.camPos = world.getPlayer().posInSpace;
 		if (keyCode == KeyEvent.VK_ESCAPE)
 			paused = !paused;
 
@@ -179,7 +197,28 @@ public class GameScene implements Scene {
 			world.getPlayer().part.applyRotationForce(0.1);
 		if (keyCode == KeyEvent.VK_X)
 			world.getPlayer().part.applyRotationForce(-0.1);
-
+		if (keyCode == KeyEvent.VK_8) {
+			speed *= 10;
+		}
+		if (keyCode == KeyEvent.VK_9) {
+			speed /= 10;
+		}
+		if (keyCode == KeyEvent.VK_0) {
+			speed = SPEED_SLOW;
+		}
+		if (keyCode == KeyEvent.VK_T) {
+			if (world.active == null) {
+				world.active = world.objects.get(0).part;
+			} else {
+				int idx = world.objects.indexOf(world.active.objOwner) + 1;
+				if (idx == world.objects.size())
+					idx = 0;
+				world.active = world.objects.get(idx).part;
+			}
+		}
+		if (keyCode == KeyEvent.VK_S) {
+			world.updateWorld(speed);
+		}
 	}
 
 	@Override
@@ -192,6 +231,7 @@ public class GameScene implements Scene {
 			world.camAccel.setY(0);
 		if (keyCode == KeyEvent.VK_LEFT)
 			world.camAccel.setX(0);
+
 	}
 
 	@Override
