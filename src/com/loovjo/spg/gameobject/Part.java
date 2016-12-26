@@ -149,7 +149,7 @@ public class Part {
 
 		if (lastBlurred == null)
 			lastBlurred = blurTexture();
-		
+
 		if (getWidthInPixels() / texture.getWidth() < 0.5) {
 			if (lastBlurred.getWidth() != (int) getWidthInPixels()) {
 				lastBlurred = blurTexture();
@@ -207,8 +207,8 @@ public class Part {
 
 		float width = getWidthInPixels(), height = getHeightInPixels();
 
-		float wRat = texture.getWidth() / width;
-		float hRat = texture.getWidth() / width;
+		float wRatio = texture.getWidth() / width;
+		float hRatio = texture.getWidth() / width;
 
 		FastImage result = new FastImage((int) width, (int) height, texture.getType());
 		for (int x = 0; x < result.getWidth(); x++) {
@@ -216,10 +216,10 @@ public class Part {
 				int[] sum = new int[4];
 				int iters = 0;
 
-				for (int x_ = 0; x_ < wRat && (x * wRat + x_ < texture.getWidth()); x_ += BLUR_RES) {
-					for (int y_ = 0; y_ < hRat && (y * hRat + y_ < texture.getHeight()); y_ += BLUR_RES) {
+				for (int x_ = 0; x_ < wRatio && (x * wRatio + x_ < texture.getWidth()); x_ += BLUR_RES) {
+					for (int y_ = 0; y_ < hRatio && (y * hRatio + y_ < texture.getHeight()); y_ += BLUR_RES) {
 
-						int col = texture.getRGB((int) (x * wRat + x_), (int) (y * hRat + y_));
+						int col = texture.getRGB((int) (x * wRatio + x_), (int) (y * hRatio + y_));
 						sum[0] += (col & 0xFF000000) >> 24;
 						sum[1] += (col & 0x00FF0000) >> 16;
 						sum[2] += (col & 0x0000FF00) >> 8;
