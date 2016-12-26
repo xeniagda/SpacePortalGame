@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1000"
+   height="1000"
+   id="svg4584"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   viewBox="0 0 1000 1000"
+   sodipodi:docname="Head.svg">
+  <defs
+     id="defs5498">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient5765">
+      <stop
+         style="stop-color:#999999;stop-opacity:1;"
+         offset="0"
+         id="stop5767" />
+      <stop
+         style="stop-color:#808080;stop-opacity:1"
+         offset="1"
+         id="stop5769" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient5757">
+      <stop
+         style="stop-color:#e6e6e6;stop-opacity:1"
+         offset="0"
+         id="stop5759" />
+      <stop
+         style="stop-color:#b3b3b3;stop-opacity:1"
+         offset="1"
+         id="stop5761" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient5741">
+      <stop
+         style="stop-color:#483737;stop-opacity:1"
+         offset="0"
+         id="stop5743" />
+      <stop
+         style="stop-color:#ac9393;stop-opacity:1"
+         offset="1"
+         id="stop5745" />
+    </linearGradient>
+    <marker
+       inkscape:stockid="Arrow2Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Send"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5433"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round;stroke:#008080;stroke-opacity:1;fill:#00ffff;fill-opacity:1"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.3) rotate(180) translate(-2.3,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lstart"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path5400"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#008080;stroke-width:1pt;stroke-opacity:1;fill:#00ffff;fill-opacity:1"
+         transform="scale(0.8) translate(12.5,0)" />
+    </marker>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5741"
+       id="linearGradient5747"
+       x1="599.65338"
+       y1="418.51566"
+       x2="699.49573"
+       y2="884.54462"
+       gradientUnits="userSpaceOnUse"
+       spreadMethod="reflect" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5757"
+       id="radialGradient5763"
+       cx="264.77567"
+       cy="544.64618"
+       fx="264.77567"
+       fy="544.64618"
+       r="316.05635"
+       gradientTransform="matrix(-0.04435133,1.862758,-1.133599,-0.02698735,893.92919,71.366958)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5765"
+       id="radialGradient5771"
+       cx="461.94922"
+       cy="480.32211"
+       fx="461.94922"
+       fy="480.32211"
+       r="173.82429"
+       gradientTransform="matrix(2.2842973,1.5488694,-1.0381671,1.5311054,-231.39316,-978.61793)"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-height="855"
+     inkscape:window-width="1436"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:zoom="1"
+     inkscape:cx="619.7229"
+     inkscape:cy="331.90072"
+     inkscape:window-x="4"
+     inkscape:window-y="0"
+     inkscape:current-layer="layer1"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5594">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline">
+    <path
+       style="fill:#999999;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 119.40146,657.50846 c 0,0 -33.439098,-86.97871 -52.907898,-174.97768 l 31.739874,-81.71361 z"
+       id="path5831"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:url(#radialGradient5763);fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 670.87555,656.96165 c 1.64183,1.43564 0.011,-5.31309 13.04515,13.19253 16.73673,23.76249 -20.92511,134.36402 -20.92511,134.36402 l -389.86784,4.40528 c 0,0 -151.98238,-13.7693 -185.022024,-280.28912 C 55.583527,266.28862 204.48876,170.09166 301.76211,156.38767 c 101.85604,-14.3496 350.75974,35.64811 367.57419,78.60416 13.11778,33.51213 20.33449,27.34338 13.11778,33.51213 l -41.48492,35.4608"
+       id="path5724"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="csccssscc"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       id="path5730"
+       style="fill:url(#radialGradient5771);fill-opacity:1;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 83.862231,483.32949 c 0,0 192.349979,-27.91972 192.618419,-29.02218 5.7742,-23.2445 26.70543,-40.15687 51.87736,-40.15687 2.5705,0 21.9699,1.2403 35.44019,14.76796 L 669.0669,235.33967 685.27512,265.158 640.8834,303.92918 382.36721,464.90006 c 10e-6,18.00659 -9.51225,33.09154 -21.39148,43.21106 -1.34094,1.1423 -5.64932,125.36729 -5.64932,125.36729 l -13.35268,28.24124 0.69223,146.78515 -75.68219,-1.10132 -1.32054,-145.68383 16.18363,-28.7919 c 0,0 8.61417,-127.51941 7.49944,-128.88305 -4.23482,-5.18041 -8.2529,-12.01904 -10.97134,-19.29667 C 278.0771,483.9286 85.809111,507.2096 85.809111,507.2096 Z"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccscccccsccccccsccc"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:url(#linearGradient5747);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="m 511.56177,384.18781 c -28.67012,50.27207 -14.72707,138.98025 -3.88006,174.4041 10.84702,35.42384 105.16535,181.82319 166.71749,100.31473 23.79757,-31.51318 62.96822,-246.00063 -31.92883,-355.88965"
+       id="path5739"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="czsc"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:#e3e3e3;fill-opacity:0.47530865;stroke:#808080;stroke-width:1.599545;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 360.64783,469.146 a 29.261257,29.261257 0 0 1 -14.56055,25.25976 l 6.60352,11.34571 A 42.352062,42.352062 0 0 0 373.73963,469.146 l -13.0918,0 z"
+       id="circle5775"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       id="path5785"
+       d="m 326.80798,435.59053 a 28.443539,30.94399 0 0 1 26.44022,11.10163 l 9.90888,-8.74726 a 41.168515,44.78761 0 0 0 -38.30841,-16.03398 l 1.95931,13.67961 z"
+       style="fill:#4d4d4d;fill-opacity:0.47530865;stroke:#4d4d4d;stroke-width:1.599545;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:connector-curvature="0"
+       inkscape:transform-center-x="-12.368208"
+       inkscape:transform-center-y="-32.464989"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       id="circle5795"
+       style="fill:#b3b3b3;fill-opacity:1;stroke:#333333;stroke-width:0.49171761;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+       r="13.019486"
+       cy="466.94427"
+       cx="328.6333"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       id="circle5808"
+       style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:1.00750196;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 351.76797,453.01154 c 8.26691,12.19492 5.08266,28.78245 -7.11224,37.04933 -12.19492,8.26691 -28.78247,5.08264 -36.93194,-7.10667 l -4.75513,3.13856 c -10.00328,-14.75633 -6.15016,-34.82799 8.60617,-44.83127 l 3.25492,4.6762 c 12.0837,-8.3052 28.67128,-5.12096 36.93816,7.07394 z"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ssccccs"
+       inkscape:transform-center-x="2.6444681"
+       inkscape:transform-center-y="-0.26994543"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <g
+       id="g5823"
+       transform="matrix(0.95953814,0,0,0.95948141,12.787121,18.862017)"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         sodipodi:nodetypes="csc"
+         inkscape:connector-curvature="0"
+         id="circle5787"
+         d="m 350.66426,466.94427 c 0,8.13966 -4.48805,15.61613 -11.67174,19.4435 -7.18369,3.82737 -15.8924,3.38195 -22.64812,-1.15837"
+         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.13007355;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path5792"
+         d="m 351.90803,466.75853 a 1.1638431,1.0355402 0 0 1 -1.16384,1.03554 1.1638431,1.0355402 0 0 1 -1.16385,-1.03554 1.1638431,1.0355402 0 0 1 1.16385,-1.03554 1.1638431,1.0355402 0 0 1 1.16384,1.03554 z"
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.41612676;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    </g>
+    <path
+       style="fill:#4d4d4d;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 85.352423,507.98458 3.303965,26.43172 178.414102,-6.60793 22.54655,-23.80916 c -4.63433,-5.21267 -9.07398,-12.5669 -10.98268,-19.14238 z"
+       id="path5827"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:nodetypes="ccccc"
+       inkscape:connector-curvature="0"
+       id="path5829"
+       d="m 93.061674,559.19604 88.656386,13.21586 85.31517,-44.27138 -178.250924,6.58085 z"
+       style="fill:#333333;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#d4c4c4;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect5849"
+       width="61.521404"
+       height="38.158848"
+       x="657.87341"
+       y="634.70728"
+       ry="9.5381298"
+       transform="matrix(0.98206296,0.1885533,-0.1885533,0.98206296,0,0)"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       transform="matrix(0.49098138,-0.87117007,0.87117007,0.49098138,0,0)"
+       ry="9.5381298"
+       y="766.4837"
+       x="-406.14313"
+       height="38.158848"
+       width="61.521404"
+       id="rect5851"
+       style="fill:#d4c4c4;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       transform="matrix(0.87167744,0.49008003,-0.49008003,0.87167744,0,0)"
+       style="fill:#4d4d4d;fill-opacity:1;stroke:#808080;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 799.4478,341.97885 100.85154,0 c 5.28412,0 9.53813,4.25401 9.53813,9.53813 l 0,47.89642 c 0,5.28413 -4.25401,9.53814 -9.53813,9.53814 l -100.85154,0 c -5.28412,0 -7.2053,-4.79684 -9.53813,-9.53814 -4.61199,-9.37355 -10.98636,-26.61426 -10.98636,-26.61426 l 10.98636,-21.28216 c 2.42388,-4.6954 4.25401,-9.53813 9.53813,-9.53813 z"
+       id="rect5833"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ssssssscss"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <ellipse
+       style="fill:#999999;fill-opacity:1;stroke:#808080;stroke-width:2.04772019;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path5835"
+       cx="897.64807"
+       cy="288.30353"
+       transform="matrix(0.81979776,0.57265316,-0.53607243,0.84417199,0,0)"
+       rx="32.391991"
+       ry="32.992077"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <ellipse
+       ry="28.307375"
+       rx="27.792498"
+       transform="matrix(0.81979776,0.57265316,-0.53607243,0.84417199,0,0)"
+       cy="288.30353"
+       cx="897.64807"
+       id="ellipse5837"
+       style="fill:#666666;fill-opacity:1;stroke:#808080;stroke-width:1.75695467;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <g
+       id="g5907"
+       transform="matrix(0.99939433,-0.03479891,0.03479891,0.99939433,-15.492822,15.198094)"
+       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <g
+         style="stroke:#656565;stroke-opacity:1;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none"
+         id="g5899"
+         transform="matrix(0.84965968,-0.52733143,0.52733143,0.84965968,-195.95643,165.36376)">
+        <rect
+           ry="0"
+           y="524.9613"
+           x="388.59723"
+           height="30.371338"
+           width="17.911291"
+           id="rect5901"
+           style="fill:#800000;fill-opacity:1;stroke:#656565;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+        <rect
+           style="fill:#00ff00;fill-opacity:1;stroke:#656565;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           id="rect5903"
+           width="17.911291"
+           height="30.371338"
+           x="406.11914"
+           y="524.9613"
+           ry="0" />
+        <rect
+           ry="0"
+           y="524.9613"
+           x="423.64105"
+           height="30.371338"
+           width="17.911291"
+           id="rect5905"
+           style="fill:#0000ff;fill-opacity:1;stroke:#656565;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      </g>
+      <g
+         transform="matrix(0.84965968,-0.52733143,0.52733143,0.84965968,-195.95643,165.36376)"
+         id="g5878">
+        <g
+           id="g5917">
+          <rect
+             ry="0"
+             y="524.9613"
+             x="388.59723"
+             height="30.371338"
+             width="17.911291"
+             id="rect5872"
+             style="fill:#661a1a;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+          <rect
+             style="fill:#36c936;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+             id="rect5874"
+             width="17.911291"
+             height="30.371338"
+             x="406.11914"
+             y="524.9613"
+             ry="0" />
+          <rect
+             ry="0"
+             y="524.9613"
+             x="423.64105"
+             height="30.371338"
+             width="17.911291"
+             id="rect5876"
+             style="fill:#2222dd;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

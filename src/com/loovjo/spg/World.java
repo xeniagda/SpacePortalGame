@@ -69,7 +69,7 @@ public class World {
 		armRight1.setRotLimit(-Math.PI / 2, Math.PI / 2);
 		armLeft2.setRotLimit(-Math.PI, Math.PI);
 		armRight2.setRotLimit(-Math.PI, Math.PI);
-		head.setRotLimit(-Math.PI / 2, Math.PI / 2);
+		head.setRotLimit(-Math.PI / 4, Math.PI / 4);
 
 		armLeft1.connected.add(armLeft2);
 		armRight1.connected.add(armRight2);
@@ -105,7 +105,8 @@ public class World {
 				ImageLoader.getImage("/DebugSnakeThing/Part1.png"),
 				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
 		obj.part = first;
-
+		
+		/*
 		Part second = new Part(new Vector(0, 0.7), new Vector(0, 0), first, 0, 0.7f, 10000f,
 				ImageLoader.getImage("/DebugSnakeThing/Part2.png"),
 				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
@@ -119,7 +120,7 @@ public class World {
 		Part fourth = new Part(new Vector(0, 0.7), new Vector(0, 0), third, 0, 0.7f, 10000f,
 				ImageLoader.getImage("/DebugSnakeThing/Part4.png"),
 				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
-		third.connected.add(fourth);
+		third.connected.add(fourth);*/
 
 		objects.add(obj);
 	}

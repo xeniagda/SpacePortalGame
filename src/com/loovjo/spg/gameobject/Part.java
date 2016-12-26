@@ -5,7 +5,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +19,8 @@ import com.loovjo.spg.gameobject.utils.CollisionLineSegment;
 import com.loovjo.spg.gameobject.utils.LineSegment;
 
 public class Part {
+
+	public static int BLUR_RES = 3;
 
 	public Vector connectionRelativeToOwner; // Center
 	public Vector connectionRelativeToMe; // Compared to center
@@ -47,6 +51,8 @@ public class Part {
 	public float rotLimitMax = 0;
 
 	public float collisionTime = 0;
+
+	private BufferedImage lastBlurred = null;
 
 	// (0, 0) is center
 	public ArrayList<LineSegment> collisionLines = new ArrayList<LineSegment>();
@@ -141,7 +147,18 @@ public class Part {
 		g2.rotate(getTotalRotation());
 		g2.translate((int) -myPosOnScreen.getX(), (int) -myPosOnScreen.getY());
 
-		g2.drawImage(texture.toBufferedImage(), (int) myPosOnScreen.getX() - getWidthInPixels() / 2,
+		if (lastBlurred == null)
+			lastBlurred = blurTexture();
+		
+		if (getWidthInPixels() / texture.getWidth() < 0.5) {
+			if (lastBlurred.getWidth() != (int) getWidthInPixels()) {
+				lastBlurred = blurTexture();
+			}
+		}
+
+		BufferedImage resized = lastBlurred;
+
+		g2.drawImage(resized, (int) myPosOnScreen.getX() - getWidthInPixels() / 2,
 				(int) myPosOnScreen.getY() - getHeightInPixels() / 2, getWidthInPixels(), getHeightInPixels(), null);
 
 		g2.setTransform(old);
@@ -173,7 +190,7 @@ public class Part {
 			Vector velPosOnScreen = objOwner.world.transformSpaceToScreen(getPosInSpace().add(getVel()));
 			g2.drawLine((int) myPosOnScreen.getX(), (int) myPosOnScreen.getY(), (int) velPosOnScreen.getX(),
 					(int) velPosOnScreen.getY());
-			
+
 			g.setColor(Color.BLUE);
 			velPosOnScreen = objOwner.world.transformSpaceToScreen(getPosInSpace().add(getStepVel()));
 			g2.drawLine((int) myPosOnScreen.getX(), (int) myPosOnScreen.getY(), (int) velPosOnScreen.getX(),
@@ -181,6 +198,45 @@ public class Part {
 		}
 
 		connected.forEach(part -> part.draw(g2, width, height));
+	}
+
+	// Gives a blurred version of the texture, so that when the screen is zoomed
+	// out, the texture doesn't look pixelated.
+	private BufferedImage blurTexture() {
+		// System.out.println(objOwner.name + "...");
+
+		float width = getWidthInPixels(), height = getHeightInPixels();
+
+		float wRat = texture.getWidth() / width;
+		float hRat = texture.getWidth() / width;
+
+		FastImage result = new FastImage((int) width, (int) height, texture.getType());
+		for (int x = 0; x < result.getWidth(); x++) {
+			for (int y = 0; y < result.getHeight(); y++) {
+				int[] sum = new int[4];
+				int iters = 0;
+
+				for (int x_ = 0; x_ < wRat && (x * wRat + x_ < texture.getWidth()); x_ += BLUR_RES) {
+					for (int y_ = 0; y_ < hRat && (y * hRat + y_ < texture.getHeight()); y_ += BLUR_RES) {
+
+						int col = texture.getRGB((int) (x * wRat + x_), (int) (y * hRat + y_));
+						sum[0] += (col & 0xFF000000) >> 24;
+						sum[1] += (col & 0x00FF0000) >> 16;
+						sum[2] += (col & 0x0000FF00) >> 8;
+						sum[3] += (col & 0x000000FF);
+						iters++;
+					}
+				}
+				if (iters == 0)
+					iters++; // To avoid division by zero.
+				int[] res = new int[] { sum[0] / iters, sum[1] / iters, sum[2] / iters, sum[3] / iters };
+
+				result.setRGB(x, y, (res[0] << 24) | (res[1] << 16) | (res[2] << 8) | res[3]);
+			}
+			// System.out.println(x);
+		}
+		// System.out.println(objOwner.name);
+		return result.toBufferedImage();
 	}
 
 	public void update(float timeStep) {
@@ -211,7 +267,7 @@ public class Part {
 				continue;
 
 			checkCollosion(obj.part);
-			
+
 		}
 
 		collisionTime = 255;
@@ -239,17 +295,16 @@ public class Part {
 	private void checkCollosion(Part part) {
 
 		for (LineSegment colLine : getCollisionLinesInSpace()) {
-			
+
 			LineSegment ls = new LineSegment(colLine.pos1, colLine.pos1
 					.add(getStepVel().mul(part.getVel().getLength() + Math.abs(part.rotationVel) * part.size + 5)));
 
 			for (CollisionLineSegment cls : part.getIntersectors(ls)) {
-				
+
 				System.out.println(getID() + "<->" + part.getID());
-				
+
 				Vector back = getVel().add(cls.collision.getStepVel());
-				
-				
+
 				applyForce(back.mul(-weight * 2), cls.collision.getPosInSpace());
 				cls.collision.applyForce(back.div(cls.collision.weight), getPosInSpace());
 			}

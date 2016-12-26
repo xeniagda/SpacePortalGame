@@ -35,6 +35,8 @@ public class GameScene implements Scene {
 	public float speed = 0.001f;
 
 	public boolean goingFast = true;
+	
+	public int zoom = 0;
 
 	public GameScene() {
 
@@ -58,7 +60,8 @@ public class GameScene implements Scene {
 					lastTime = System.currentTimeMillis();
 
 					update_(delta * speed);
-
+					
+					world.zoom *= Math.pow(2, zoom * delta * speed);
 				}
 			}
 		});
@@ -185,9 +188,9 @@ public class GameScene implements Scene {
 			paused = !paused;
 
 		if (keyCode == KeyEvent.VK_1)
-			world.zoom *= 1.3;
+			zoom = 1;
 		if (keyCode == KeyEvent.VK_2)
-			world.zoom /= 1.3;
+			zoom = -1;
 
 		if (keyCode == KeyEvent.VK_R) {
 			load();
@@ -231,6 +234,9 @@ public class GameScene implements Scene {
 			world.camAccel.setY(0);
 		if (keyCode == KeyEvent.VK_LEFT)
 			world.camAccel.setX(0);
+
+		if (keyCode == KeyEvent.VK_1 || keyCode == KeyEvent.VK_2)
+			zoom = 0;
 
 	}
 
