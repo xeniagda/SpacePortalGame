@@ -28,20 +28,20 @@ public class GameScene implements Scene {
 
 	public Vector lastPos = new Vector(0, 0), currentPos = new Vector(0, 0);
 
-	public boolean paused = true;
+	public boolean paused = false;
 
 	public Thread updateThread;
 
 	public float speed = 0.001f;
 
 	public boolean goingFast = true;
-	
+
 	public int zoom = 0;
 
 	public GameScene() {
 
 		load();
-		
+
 		updateThread = new Thread(new Runnable() {
 
 			@Override
@@ -60,7 +60,7 @@ public class GameScene implements Scene {
 					lastTime = System.currentTimeMillis();
 
 					update_(delta * speed);
-					
+
 					world.zoom *= Math.pow(2, zoom * delta * speed);
 				}
 			}
@@ -116,7 +116,7 @@ public class GameScene implements Scene {
 		int fontSize = 12;
 		g.setFont(new Font("Helvetica Nueue", Font.BOLD, fontSize));
 		g.setColor(Color.white);
-		
+
 		g.drawString("Active: " + (world.active == null ? "None" : world.active.getID()), 0, fontSize);
 		g.drawString("Speed: " + speed, 0, 2 * fontSize);
 
@@ -124,120 +124,146 @@ public class GameScene implements Scene {
 
 	@Override
 	public void mousePressed(Vector pos, int button) {
-		if (holding == -1) {
-			lastPos = pos;
-		}
-		if (button == 1) {
-			Vector posInSpace = world.transformScreenToSpace(pos);
+		if (world.hasGui()) {
+			world.getGui().mousePressed(pos, button);
+		} else {
 
-			Part closest = null;
-			float distance = 0;
-
-			Stack<Part> parts = new Stack<Part>();
-			for (GameObject obj : world.objects) {
-				parts.add(obj.part);
+			if (holding == -1) {
+				lastPos = pos;
 			}
-			while (parts.size() > 0) {
-				Part part = parts.pop();
-				part.connected.forEach(p -> parts.add(p));
-				float dist = part.getPosInSpace().getLengthTo(posInSpace);
-				if (closest == null || dist < distance) {
-					closest = part;
-					distance = dist;
+			if (button == 1) {
+				Vector posInSpace = world.transformScreenToSpace(pos);
+
+				Part closest = null;
+				float distance = 0;
+
+				Stack<Part> parts = new Stack<Part>();
+				for (GameObject obj : world.objects) {
+					parts.add(obj.part);
 				}
+				while (parts.size() > 0) {
+					Part part = parts.pop();
+					part.connected.forEach(p -> parts.add(p));
+					float dist = part.getPosInSpace().getLengthTo(posInSpace);
+					if (closest == null || dist < distance) {
+						closest = part;
+						distance = dist;
+					}
+				}
+				world.active = closest;
 			}
-			world.active = closest;
-		}
 
-		holding = button;
+			holding = button;
+
+		}
 	}
 
 	@Override
 	public void mouseReleased(Vector pos, int button) {
-		if (holding == 3) {
-			Vector diff = world.transformScreenToSpace(currentPos).sub(world.transformScreenToSpace(lastPos));
+		if (world.hasGui()) {
+			world.getGui().mouseReleased(pos, button);
+		} else {
+			if (holding == 3) {
+				Vector diff = world.transformScreenToSpace(currentPos).sub(world.transformScreenToSpace(lastPos));
 
-			world.active.applyForce(diff, world.transformScreenToSpace(currentPos));
+				world.active.applyForce(diff, world.transformScreenToSpace(currentPos));
 
-			lastPos = pos;
+				lastPos = pos;
+
+			}
+			holding = -1;
 
 		}
-		holding = -1;
 	}
 
 	@Override
 	public void mouseMoved(Vector pos) {
-		if (holding == 1) {
-			Vector delta = lastPos.sub(pos);
-			world.camVel = world.camVel.add(delta.div(world.zoom).mul(12));
-			lastPos = pos;
-		}
-		if (holding == -1) {
-			lastPos = currentPos;
-		}
-		currentPos = pos;
+		if (world.hasGui()) {
+			world.getGui().mouseMoved(pos);
+		} else {
+			if (holding == 1) {
+				Vector delta = lastPos.sub(pos);
+				world.camVel = world.camVel.add(delta.div(world.zoom).mul(12));
+				lastPos = pos;
+			}
+			if (holding == -1) {
+				lastPos = currentPos;
+			}
+			currentPos = pos;
 
+		}
 	}
 
 	@Override
 	public void keyPressed(int keyCode) {
 
-		if (keyCode == KeyEvent.VK_SPACE)
-			world.camPos = world.getPlayer().posInSpace;
-		if (keyCode == KeyEvent.VK_ESCAPE)
-			paused = !paused;
+		if (world.hasGui()) {
+			world.getGui().keyPressed(keyCode);
+		} else {
 
-		if (keyCode == KeyEvent.VK_1)
-			zoom = 1;
-		if (keyCode == KeyEvent.VK_2)
-			zoom = -1;
+			if (keyCode == KeyEvent.VK_SPACE)
+				world.camPos = world.getPlayer().posInSpace;
+			if (keyCode == KeyEvent.VK_ESCAPE)
+				paused = !paused;
 
-		if (keyCode == KeyEvent.VK_R) {
-			load();
-		}
+			if (keyCode == KeyEvent.VK_1)
+				zoom = 1;
+			if (keyCode == KeyEvent.VK_2)
+				zoom = -1;
 
-		if (keyCode == KeyEvent.VK_Z)
-			world.getPlayer().part.applyRotationForce(0.1);
-		if (keyCode == KeyEvent.VK_X)
-			world.getPlayer().part.applyRotationForce(-0.1);
-		if (keyCode == KeyEvent.VK_8) {
-			speed *= 10;
-		}
-		if (keyCode == KeyEvent.VK_9) {
-			speed /= 10;
-		}
-		if (keyCode == KeyEvent.VK_0) {
-			speed = SPEED_SLOW;
-		}
-		if (keyCode == KeyEvent.VK_T) {
-			if (world.active == null) {
-				world.active = world.objects.get(0).part;
-			} else {
-				int idx = world.objects.indexOf(world.active.objOwner) + 1;
-				if (idx == world.objects.size())
-					idx = 0;
-				world.active = world.objects.get(idx).part;
+			if (keyCode == KeyEvent.VK_R) {
+				load();
 			}
-		}
-		if (keyCode == KeyEvent.VK_S) {
-			world.updateWorld(speed);
+
+			if (keyCode == KeyEvent.VK_Z)
+				world.getPlayer().part.applyRotationForce(0.1);
+			if (keyCode == KeyEvent.VK_X)
+				world.getPlayer().part.applyRotationForce(-0.1);
+			if (keyCode == KeyEvent.VK_8) {
+				speed *= 10;
+			}
+			if (keyCode == KeyEvent.VK_9) {
+				speed /= 10;
+			}
+			if (keyCode == KeyEvent.VK_0) {
+				speed = SPEED_SLOW;
+			}
+			if (keyCode == KeyEvent.VK_T) {
+				if (world.active == null) {
+					world.active = world.objects.get(0).part;
+				} else {
+					int idx = world.objects.indexOf(world.active.objOwner) + 1;
+					if (idx == world.objects.size())
+						idx = 0;
+					world.active = world.objects.get(idx).part;
+				}
+			}
+			if (keyCode == KeyEvent.VK_S) {
+				world.updateWorld(speed);
+			}
+
 		}
 	}
 
 	@Override
 	public void keyReleased(int keyCode) {
-		if (keyCode == KeyEvent.VK_UP)
-			world.camAccel.setY(0);
-		if (keyCode == KeyEvent.VK_RIGHT)
-			world.camAccel.setX(0);
-		if (keyCode == KeyEvent.VK_DOWN)
-			world.camAccel.setY(0);
-		if (keyCode == KeyEvent.VK_LEFT)
-			world.camAccel.setX(0);
 
-		if (keyCode == KeyEvent.VK_1 || keyCode == KeyEvent.VK_2)
-			zoom = 0;
+		if (world.hasGui()) {
+			world.getGui().keyReleased(keyCode);
+		} else {
+			if (keyCode == KeyEvent.VK_UP)
+				world.camAccel.setY(0);
+			if (keyCode == KeyEvent.VK_RIGHT)
+				world.camAccel.setX(0);
+			if (keyCode == KeyEvent.VK_DOWN)
+				world.camAccel.setY(0);
+			if (keyCode == KeyEvent.VK_LEFT)
+				world.camAccel.setX(0);
 
+			if (keyCode == KeyEvent.VK_1 || keyCode == KeyEvent.VK_2)
+				zoom = 0;
+
+		}
 	}
 
 	@Override

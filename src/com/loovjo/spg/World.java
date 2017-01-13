@@ -1,6 +1,10 @@
 package com.loovjo.spg;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -9,9 +13,11 @@ import com.loovjo.loo2D.utils.Vector;
 import com.loovjo.spg.gameobject.GameObject;
 import com.loovjo.spg.gameobject.Part;
 import com.loovjo.spg.gameobject.Player;
+import com.loovjo.spg.gameobject.parts.SpaceShipMainComputerRoom;
 import com.loovjo.spg.gameobject.utils.CollisionLineSegment;
 import com.loovjo.spg.gameobject.utils.LineSegment;
 import com.loovjo.spg.gameobject.utils.Textures;
+import com.loovjo.spg.gui.Gui;
 
 public class World {
 
@@ -40,6 +46,8 @@ public class World {
 	public static float MAX_ROT = 3;
 
 	public Part active = null;
+
+	private Gui gui = null;
 
 	public World() {
 		try {
@@ -92,8 +100,7 @@ public class World {
 	public void loadSpaceShip() {
 		GameObject spaceShip = new GameObject(this, new Vector(0, 0), "SpaceShip");
 
-		Part mainRoom = new Part(new Vector(0, 0), new Vector(0, 0), spaceShip, 0, 10, 400,
-				Textures.SPACE_SHIP_MAIN_ROOM, Textures.SPACE_SHIP_MAIN_ROOM_COLMESH);
+		Part mainRoom = new SpaceShipMainComputerRoom(spaceShip);
 		spaceShip.part = mainRoom;
 
 		objects.add(spaceShip);
@@ -105,36 +112,72 @@ public class World {
 				ImageLoader.getImage("/DebugSnakeThing/Part1.png"),
 				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
 		obj.part = first;
-		
+
 		/*
-		Part second = new Part(new Vector(0, 0.7), new Vector(0, 0), first, 0, 0.7f, 10000f,
-				ImageLoader.getImage("/DebugSnakeThing/Part2.png"),
-				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
-		// first.connected.add(second);
-
-		Part third = new Part(new Vector(0, 0.7), new Vector(0, 0), second, 0, 0.7f, 10000f,
-				ImageLoader.getImage("/DebugSnakeThing/Part3.png"),
-				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
-		second.connected.add(third);
-
-		Part fourth = new Part(new Vector(0, 0.7), new Vector(0, 0), third, 0, 0.7f, 10000f,
-				ImageLoader.getImage("/DebugSnakeThing/Part4.png"),
-				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
-		third.connected.add(fourth);*/
+		 * Part second = new Part(new Vector(0, 0.7), new Vector(0, 0), first,
+		 * 0, 0.7f, 10000f, ImageLoader.getImage("/DebugSnakeThing/Part2.png"),
+		 * ImageLoader.getImage("/DebugSnakeThing/ColMesh.png")); //
+		 * first.connected.add(second);
+		 * 
+		 * Part third = new Part(new Vector(0, 0.7), new Vector(0, 0), second,
+		 * 0, 0.7f, 10000f, ImageLoader.getImage("/DebugSnakeThing/Part3.png"),
+		 * ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
+		 * second.connected.add(third);
+		 * 
+		 * Part fourth = new Part(new Vector(0, 0.7), new Vector(0, 0), third,
+		 * 0, 0.7f, 10000f, ImageLoader.getImage("/DebugSnakeThing/Part4.png"),
+		 * ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
+		 * third.connected.add(fourth);
+		 */
 
 		objects.add(obj);
 	}
 
-	public void draw(Graphics g, int width, int height) {
+	public void openGui(Gui gui) {
+		this.gui = gui;
+	}
+
+	public void closeGui() {
+		this.gui = null;
+	}
+
+	public Gui getGui() {
+		return this.gui;
+	}
+
+	public boolean hasGui() {
+		return gui != null;
+	}
+
+	public void draw(Graphics g_, int width, int height) {
 
 		this.width = width;
 		this.height = height;
 
-		g.drawImage(background, (int) -camPos.getX() - background.getWidth() / 2,
-				(int) -camPos.getY() - background.getHeight() / 2, null);
+		Graphics2D g = (Graphics2D) g_;
 
-		getPlayer().draw(g, width, height);
-		objects.forEach(obj -> obj.draw(g, width, height));
+		g.setColor(Color.black);
+		g.fillRect(0, 0, width, height);
+
+		Composite c = g.getComposite();
+		if (hasGui()) {
+			g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
+		}
+		BufferedImage gameRendered = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+		Graphics grg = gameRendered.getGraphics();
+
+		grg.drawImage(background, (int) -camPos.getX() - background.getWidth() / 2,
+				(int) -camPos.getY() - background.getHeight() / 2, null);
+		objects.forEach(obj -> obj.draw(grg, width, height));
+
+		g.drawImage(gameRendered, 0, 0, null);
+
+		if (hasGui()) {
+			g.setComposite(c);
+
+			getGui().draw((Graphics2D) g, width, height);
+
+		}
 	}
 
 	public Part getPlayerLeftLastArm() {
@@ -143,7 +186,11 @@ public class World {
 
 	public void updateWorld(float timeStep) {
 		tick++;
-		objects.forEach(o -> o.update(timeStep));
+		if (hasGui()) {
+			gui.update(timeStep);
+		} else {
+			objects.forEach(o -> o.update(timeStep));
+		}
 	}
 
 	public void updateCamera(float timeStep) {

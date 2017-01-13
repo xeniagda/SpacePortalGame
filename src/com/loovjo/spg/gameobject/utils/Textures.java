@@ -16,5 +16,10 @@ public class Textures {
 
 	public static final FastImage SPACE_SHIP_MAIN_ROOM = ImageLoader.getImage("/SpaceShip/Start_room.png");
 	public static final FastImage SPACE_SHIP_MAIN_ROOM_COLMESH = ImageLoader.getImage("/SpaceShip/Start_room_colmesh.png");
+
+	public static final FastImage GUI_CELL = ImageLoader.getImage("/Gui/MainComputerGui/Cell.png");
+	public static final FastImage GUI_NOT_FOUND = ImageLoader.getImage("/Gui/MainComputerGui/Not_Found.png");
+
+	public static final FastImage GUI_BASE_MACHINE = ImageLoader.getImage("/Gui/MainComputerGui/Base_machine.png");
 	
 }
