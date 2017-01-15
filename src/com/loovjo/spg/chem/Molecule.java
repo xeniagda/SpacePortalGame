@@ -1,5 +1,6 @@
 package com.loovjo.spg.chem;
 
+import java.awt.Color;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,11 +11,13 @@ import com.loovjo.spg.chem.atom.Atom;
 public class Molecule {
 
 	private final HashMap<Atom, Integer> atoms = new HashMap<Atom, Integer>();
+	private final Color color;
 
-	public Molecule(HashMap<Atom, Integer> atoms) {
+	public Molecule(HashMap<Atom, Integer> atoms, Color color) {
 		for (Entry<Atom, Integer> e : atoms.entrySet()) {
 			this.atoms.put(e.getKey(), e.getValue());
 		}
+		this.color =color;
 	}
 
 	public HashMap<Atom, Integer> getAtoms() { // Gives a clone
@@ -41,7 +44,12 @@ public class Molecule {
 		for (; i.hasNext();) {
 			Atom a = i.next();
 			String count = atoms.get(a).toString();
-			res += a.symbol;
+			if (a != null) {
+				res += a.symbol;
+			}
+			else {
+				res += "null";
+			}
 			if (count.equals("1")) {
 				continue;
 			}
@@ -57,12 +65,14 @@ public class Molecule {
 		return res;
 	}
 	
+	
+	
 	public String toString() {
 		return toString(true);
 	}
 
-	public static Molecule makeMolecule(Object... obj) {
-		// Make in format (atom, count, atom, count, atom, count)
+	public static Molecule makeMolecule(Color col, Object... obj) {
+		// Make in format (col, atom, count, atom, count, atom, count)
 		HashMap<Atom, Integer> atoms = new HashMap<Atom, Integer>();
 
 		assert (obj.length % 2 == 0);
@@ -71,7 +81,20 @@ public class Molecule {
 			atoms.put((Atom) obj[i], (int) obj[i + 1]);
 		}
 
-		return new Molecule(atoms);
+		return new Molecule(atoms, col);
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof Molecule) {
+			Molecule o = (Molecule) other;
+			return o.toString().equals(toString()); // TODO: Add proper comparing.
+		}
+		return false;
+	}
+
+	public Color getColor() {
+		return new Color(color.getRGB());
 	}
 
 }

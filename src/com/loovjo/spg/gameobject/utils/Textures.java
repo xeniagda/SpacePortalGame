@@ -20,6 +20,8 @@ public class Textures {
 	public static final FastImage GUI_CELL = ImageLoader.getImage("/Gui/MainComputerGui/Cell.png");
 	public static final FastImage GUI_NOT_FOUND = ImageLoader.getImage("/Gui/MainComputerGui/Not_Found.png");
 
-	public static final FastImage GUI_BASE_MACHINE = ImageLoader.getImage("/Gui/MainComputerGui/Base_machine.png");
+	public static final FastImage MACHINE_BASE = ImageLoader.getImage("/Gui/MainComputerGui/Base_machine.png");
+
+	public static final FastImage MACHINE_CONTAINER = ImageLoader.getImage("/Gui/MainComputerGui/Machine_Container.png");
 	
 }

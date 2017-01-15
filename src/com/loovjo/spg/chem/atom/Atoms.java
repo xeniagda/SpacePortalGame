@@ -37,14 +37,17 @@ public class Atoms {
 	}
 
 	public static Atom getFromSymbol(String symbol) {
+		assert(ATOMS.size() > 0);
 		return ATOMS.stream().filter(a -> a.symbol.equalsIgnoreCase(symbol)).findAny().orElse(null);
 	}
 
 	public static Atom getFromName(String name) {
+		assert(ATOMS.size() > 0);
 		return ATOMS.stream().filter(a -> a.name.equalsIgnoreCase(name)).findAny().orElse(null);
 	}
 
 	public static Atom getFromNumber(int num) {
+		assert(ATOMS.size() > 0);
 		return ATOMS.stream().filter(a -> a.number == num).findAny().orElse(null);
 	}
 }

@@ -12,8 +12,7 @@ public class ChemistryTesting {
 
 	@Before
 	public void setup() {
-		FileLoader.setLoaderClass(Main.class);
-		Atoms.LOAD_ATOMS();
+		Main.SETUP();
 	}
 
 	@Test
@@ -38,9 +37,15 @@ public class ChemistryTesting {
 	
 	@Test
 	public void testMaterial() {
-		assertEquals(1d, new Material(Molecule.makeMolecule(Atoms.getFromSymbol("H"), 1), 1).getWeight(), 0.0001);
-		assertEquals(220d, new Material(Molecules.CARBON_DIOXIDE, 10).getWeight(), 0.0001);
+		assertEquals(1d, Material.makeFromWeight(Molecule.makeMolecule(null, Atoms.getFromSymbol("H"), 1), 1).getWeight(), 0.0001);
+		assertEquals(220d, Material.makeFromWeight(Molecules.CARBON_DIOXIDE, 220).getWeight(), 0.0001);
 		assertEquals(Math.PI, Material.makeFromWeight(Molecules.CARBON_DIOXIDE, Math.PI).getWeight(), 0.0001);
+		
+		assertEquals(2, Material.makeFromWeight(Molecules.CARBON_DIOXIDE, 1).mix(Material.makeFromWeight(Molecules.CARBON_DIOXIDE, 1)).getWeight(), 0.001);
+		
+		assertTrue(Material.makeFromWeight(Molecules.WATER, 1).canMixWith(Material.makeFromWeight(Molecules.WATER, 2)));
+		assertTrue(Material.makeFromWeight(Molecules.WATER, 3).canMixWith(Material.makeFromWeight(Molecules.WATER, 1)));
+		assertTrue(Material.makeFromWeight(Molecules.WATER, 3).canMixWith(Material.makeFromWeight(null, 0)));
 	}
 
 }
