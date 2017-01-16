@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import com.loovjo.loo2D.utils.FileLoader;
 import com.loovjo.spg.Main;
 import com.loovjo.spg.chem.atom.Atoms;
 
@@ -46,6 +45,9 @@ public class ChemistryTesting {
 		assertTrue(Material.makeFromWeight(Molecules.WATER, 1).canMixWith(Material.makeFromWeight(Molecules.WATER, 2)));
 		assertTrue(Material.makeFromWeight(Molecules.WATER, 3).canMixWith(Material.makeFromWeight(Molecules.WATER, 1)));
 		assertTrue(Material.makeFromWeight(Molecules.WATER, 3).canMixWith(Material.makeFromWeight(null, 0)));
+		
+		assertEquals(Material.makeFromWeight(Molecules.CARBON_DIOXIDE, 1), Material.makeFromWeight(null, 0).mix(Material.makeFromWeight(Molecules.CARBON_DIOXIDE, 1)));
+		
 	}
 
 }

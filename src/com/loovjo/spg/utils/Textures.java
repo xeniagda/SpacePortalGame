@@ -1,10 +1,12 @@
-package com.loovjo.spg.gameobject.utils;
+package com.loovjo.spg.utils;
 
 import com.loovjo.loo2D.utils.FastImage;
 import com.loovjo.loo2D.utils.ImageLoader;
 
 public class Textures {
 	
+	public static final FastImage NOT_FOUND = ImageLoader.getImage("/Gui/MainComputerGui/Not_Found.png");
+
 	public static final FastImage BACKGROUND = ImageLoader.getImage("/Space_background.jpg");
 	
 	public static final FastImage PLAYER_BODY = ImageLoader.getImage("/Player/Body.png");
@@ -17,11 +19,11 @@ public class Textures {
 	public static final FastImage SPACE_SHIP_MAIN_ROOM = ImageLoader.getImage("/SpaceShip/Start_room.png");
 	public static final FastImage SPACE_SHIP_MAIN_ROOM_COLMESH = ImageLoader.getImage("/SpaceShip/Start_room_colmesh.png");
 
-	public static final FastImage GUI_CELL = ImageLoader.getImage("/Gui/MainComputerGui/Cell.png");
-	public static final FastImage GUI_NOT_FOUND = ImageLoader.getImage("/Gui/MainComputerGui/Not_Found.png");
 
-	public static final FastImage MACHINE_BASE = ImageLoader.getImage("/Gui/MainComputerGui/Base_machine.png");
+	public static final FastImage GUI_CELL = ImageLoader.getImage("/Gui/MainComputerGui/Cell.png");
 
 	public static final FastImage MACHINE_CONTAINER = ImageLoader.getImage("/Gui/MainComputerGui/Machine_Container.png");
+	public static final FastImage MACHINE_NUCLEAR = ImageLoader.getImage("/Gui/MainComputerGui/Machine_Nuclear.png");
+	public static final FastImage MACHINE_BATTERY = ImageLoader.getImage("/Gui/MainComputerGui/Machine_Battery.png");
 	
 }

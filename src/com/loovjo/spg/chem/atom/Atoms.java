@@ -2,7 +2,6 @@ package com.loovjo.spg.chem.atom;
 
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import com.loovjo.loo2D.utils.FileLoader;
 

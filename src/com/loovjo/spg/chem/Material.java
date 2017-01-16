@@ -10,8 +10,7 @@ public class Material {
 	public final Molecule mol;
 
 	// In 5.9747*10^23 atoms. 1 amount of H is 1g
-	// Check
-	// https://www.wolframalpha.com/input/?i=1+%2F+(hydrogen+mass+in+grams)
+	// If mol is an energon, 1 amount is 1 power unit
 	public final double amount;
 
 	@Deprecated
@@ -29,13 +28,15 @@ public class Material {
 	public float getWeight() { // In grams
 		if (empty())
 			return 0;
+		if (mol.isEnergon()) {
+			return (float) amount;
+		}
 		float res = 0;
 		for (Entry<Atom, Integer> part : mol.getAtoms().entrySet()) {
 			res += part.getKey().number * part.getValue() * amount;
 		}
 		return res;
 	}
-	
 
 	public boolean canMixWith(Material other) {
 		if (empty() || other.empty()) {
@@ -49,11 +50,12 @@ public class Material {
 
 		if (empty())
 			return other;
-		return new Material(mol, amount + other.amount);
+
+		return Material.makeFromWeight(mol, getWeight() + other.getWeight());
 	}
 
-	public Material multiply(float f) {
-		return new Material(mol, amount * f);
+	public Material multiply(double f) {
+		return Material.makeFromWeight(mol, getWeight() * f);
 	}
 
 	public boolean empty() {
@@ -61,7 +63,7 @@ public class Material {
 	}
 
 	public String toString() {
-		return empty() ? "Material(null)" : "Material(" + amount + " of " + mol + ")";
+		return empty() ? "Material(null)" : "Material(" + getWeight() + " of " + mol + ")";
 	}
 
 	public static Material makeFromWeight(Molecule mol, double weight) {
@@ -79,7 +81,11 @@ public class Material {
 	}
 
 	public Color getColor() {
-		return mol.getColor();
+		return mol == null ? new Color(0, 1, 1, 1) : mol.getColor();
+	}
+
+	public int getRadioActivity() { // TODO: Add actual radioactivity
+		return mol == null ? 0 : mol.toString().equals("U") ? 1 : 0;
 	}
 
 }

@@ -3,11 +3,11 @@ package com.loovjo.spg.gui.machines;
 import java.awt.Graphics2D;
 
 import com.loovjo.spg.chem.Material;
-import com.loovjo.spg.gameobject.utils.Textures;
+import com.loovjo.spg.chem.Molecule;
 import com.loovjo.spg.gui.Board;
+import com.loovjo.spg.utils.Textures;
 
 public class MachineContainer extends Machine {
-
 	public Material content;
 
 	public final double capacity;
@@ -22,7 +22,6 @@ public class MachineContainer extends Machine {
 	public void draw(Graphics2D g, int posX, int posY, int width, int height) {
 
 		g.setColor(content.getColor());
-
 		int size = (int) (0.654 * height * (content.getWeight() / capacity));
 
 		g.fillRect(posX + width / 8, posY + (int) (0.816 * width) - size, 3 * width / 4, size);
@@ -32,14 +31,15 @@ public class MachineContainer extends Machine {
 
 	@Override
 	public boolean canRecieveFrom(Machine m, int port) {
-		return content.getWeight() < capacity;
+		return m == null || content.getWeight() < capacity;
 	}
 	
 	@Override
 	public Material recieve(Material m, Machine mach, int port) {
+		if (!canRecieveFrom(mach, port))
+			return m;
 		if (m.canMixWith(content)) {
 			content = content.mix(m);
-
 			if (content.getWeight() > capacity) {
 				double difference = content.getWeight() - capacity;
 				content = Material.makeFromWeight(content.mol, capacity);
@@ -67,5 +67,14 @@ public class MachineContainer extends Machine {
 		}
 		return Material.makeFromWeight(null, 0);
 	}
-
+	
+	public String getInfo() {
+		return super.getInfo() + "\nContent: " + content + "\nCapacity: " + capacity;
+	}
+	
+	@Override
+	public Molecule getMol(int port) {
+		return content.mol;
+	}
+	
 }

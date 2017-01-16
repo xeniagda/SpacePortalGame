@@ -3,8 +3,8 @@ package com.loovjo.spg.gameobject.parts;
 import com.loovjo.loo2D.utils.Vector;
 import com.loovjo.spg.gameobject.GameObject;
 import com.loovjo.spg.gameobject.Part;
-import com.loovjo.spg.gameobject.utils.Textures;
 import com.loovjo.spg.gui.Board;
+import com.loovjo.spg.utils.Textures;
 
 public class SpaceShipMainComputerRoom extends Part {
 

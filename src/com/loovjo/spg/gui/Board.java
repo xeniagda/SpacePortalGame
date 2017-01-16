@@ -1,16 +1,23 @@
 package com.loovjo.spg.gui;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.swing.plaf.synth.SynthSpinnerUI;
 
 import com.loovjo.loo2D.utils.Vector;
 import com.loovjo.spg.chem.Material;
 import com.loovjo.spg.chem.Molecules;
-import com.loovjo.spg.gameobject.utils.Textures;
 import com.loovjo.spg.gui.machines.Machine;
+import com.loovjo.spg.gui.machines.MachineBattery;
 import com.loovjo.spg.gui.machines.MachineContainer;
+import com.loovjo.spg.gui.machines.MachineNuclearGenerator;
 import com.loovjo.spg.gui.machines.MachinePipe;
+import com.loovjo.spg.utils.Textures;
 
 public class Board implements Gui {
 
@@ -20,14 +27,19 @@ public class Board implements Gui {
 
 	// Render settings in pixels
 	private int cellSize = 32;
-	private int roundSize = 80;
+	private int roundSize = 90;
 	private int spaceBetweenCells = 5;
 
 	private int w, h;
 
+	private int selX, selY;
+
+	public boolean[] pressedKeys = new boolean[256];
+
 	public Board() {
-		machines.add(new MachineContainer(2, 2, Material.makeFromWeight(Molecules.WATER, 5), 5, this));
-		machines.add(new MachineContainer(2, 4, Material.makeFromWeight(Molecules.WATER, 0.2), 0.3, this));
+		machines.add(new MachineContainer(2, 2, Material.makeFromWeight(Molecules.URANIUM, 5), 5, this));
+		machines.add(new MachineNuclearGenerator(2, 4, 1, 0.2, this));
+		machines.add(new MachineBattery(4, 4, 5, this));
 	}
 
 	@Override
@@ -61,6 +73,30 @@ public class Board implements Gui {
 					m.draw(g, xPos, yPos, cellSize, cellSize);
 				} else {
 					g.drawImage(Textures.GUI_CELL.toBufferedImage(), xPos, yPos, cellSize, cellSize, null);
+				}
+				if (x == selX && y == selY) {
+					g.setStroke(new BasicStroke());
+
+					g.drawRect(xPos, yPos, cellSize, cellSize);
+				}
+			}
+		}
+		if (pressedKeys[KeyEvent.VK_ALT]) {
+			Machine m = getMachine(selX, selY);
+			if (m != null) {
+				String[] info = m.getInfo().split("\n");
+				g.setColor(Color.white);
+				g.setFont(new Font("Helvetica", Font.PLAIN, 12));
+
+				for (int i = 0; i < info.length; i++) {
+					int y = i * g.getFont().getSize();
+					if (y > roundSize / 2) {
+						g.drawString(info[i], 2 + originX, originY + y + g.getFont().getSize());
+					} else {
+						int y1 = y + g.getFont().getSize() / 3;
+						g.drawString(info[i], 2 + originX + roundSize / 2 - (int) Math.sqrt(roundSize * y1 - y1 * y1),
+								originY + y + g.getFont().getSize());
+					}
 				}
 			}
 		}
@@ -110,27 +146,28 @@ public class Board implements Gui {
 		int x = (int) p.getX();
 		int y = (int) p.getY();
 
+		selX = x;
+		selY = y;
+
 		Machine m = getMachine(x, y);
 		if (m != null) {
 			m.clicked(button);
-		} else {
-			machines.add(new MachinePipe(x, y, 0, 3, Material.makeFromWeight(Molecules.WATER, 1), 0.1, this));
 		}
 	}
 
 	public void transfer(Machine m1, int port1, Machine m2, int port2, Material m) {
+
 		if (!m2.canRecieveFrom(m1, port1))
 			return;
-		
 		Material taken = m1.take(m, m2, port1);
-		
 		Material left = m2.recieve(taken, m1, port2);
-		
+
 		if (!left.empty()) {
+
 			Material a = m1.recieve(left, null, port1);
-			
+
 			if (!a.empty()) {
-				System.out.println("Left: " + a);
+				System.out.println("Left: " + a + " from " + m1 + ":" + port1 + " (" + m2 + ":" + port2 + ")");
 			}
 		}
 	}
@@ -149,14 +186,53 @@ public class Board implements Gui {
 
 	@Override
 	public void keyPressed(int button) {
-		// TODO Auto-generated method stub
 
+		pressedKeys[button] = true;
+
+		if (button == KeyEvent.VK_H) {
+			selX--;
+		}
+		if (button == KeyEvent.VK_J) {
+			selY++;
+		}
+		if (button == KeyEvent.VK_K) {
+			selY--;
+		}
+		if (button == KeyEvent.VK_L) {
+			selX++;
+		}
+		if (button == KeyEvent.VK_R) {
+			Machine m = getMachine(selX, selY);
+			if (m != null && m instanceof MachinePipe) {
+				((MachinePipe) m).clicked(pressedKeys[KeyEvent.VK_SHIFT] ? 1 : 3);
+			} else {
+				machines.add(new MachinePipe(selX, selY, 0, 1, 0, 0, 1, 0.7,
+						this));
+			}
+		}
+		if (button == KeyEvent.VK_X) {
+			Machine m = getMachine(selX, selY);
+			if (m != null) {
+				machines.remove(m);
+			}
+		}
+		if (button == KeyEvent.VK_I) {
+			Machine m = getMachine(selX, selY);
+			if (m != null && m instanceof MachinePipe) {
+				((MachinePipe) m).inPort += pressedKeys[KeyEvent.VK_SHIFT] ? -1 : 1;
+			}
+		}
+		if (button == KeyEvent.VK_O) {
+			Machine m = getMachine(selX, selY);
+			if (m != null && m instanceof MachinePipe) {
+				((MachinePipe) m).outPort += pressedKeys[KeyEvent.VK_SHIFT] ? -1 : 1;
+			}
+		}
 	}
 
 	@Override
 	public void keyReleased(int button) {
-		// TODO Auto-generated method stub
-
+		pressedKeys[button] = false;
 	}
 
 }

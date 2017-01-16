@@ -97,4 +97,8 @@ public class Molecule {
 		return new Color(color.getRGB());
 	}
 
+	public boolean isEnergon() {
+		return false;
+	}
+
 }

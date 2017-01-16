@@ -18,6 +18,7 @@ public class Molecules {
 	public static Molecule CARBON_DIOXIDE = Molecule.makeMolecule(new Color(0, 0, 0, 0), Atoms.getFromSymbol("O"), 2, Atoms.getFromSymbol("C"), 1);
 	public static Molecule OZONE = Molecule.makeMolecule(new Color(0, 0, 0, 0), Atoms.getFromSymbol("O"), 3);
 	public static Molecule GLUCOSE = Molecule.makeMolecule(Color.white, Atoms.getFromSymbol("C"), 6, Atoms.getFromSymbol("H"), 12, Atoms.getFromSymbol("O"), 6);
+	public static Molecule URANIUM = Molecule.makeMolecule(Color.green, Atoms.getFromSymbol("U"), 1);
 	
 	private static class Energon extends Molecule {
 
@@ -27,6 +28,10 @@ public class Molecules {
 		
 		public String toString() {
 			return "Energy()";
+		}
+		
+		public boolean isEnergon() {
+			return true;
 		}
 		
 	}

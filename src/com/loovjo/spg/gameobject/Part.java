@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -203,7 +202,6 @@ public class Part {
 	// Gives a blurred version of the texture, so that when the screen is zoomed
 	// out, the texture doesn't look pixelated.
 	private BufferedImage blurTexture() {
-		// System.out.println(objOwner.name + "...");
 
 		float width = getWidthInPixels(), height = getHeightInPixels();
 
@@ -233,9 +231,7 @@ public class Part {
 
 				result.setRGB(x, y, (res[0] << 24) | (res[1] << 16) | (res[2] << 8) | res[3]);
 			}
-			// System.out.println(x);
 		}
-		// System.out.println(objOwner.name);
 		return result.toBufferedImage();
 	}
 

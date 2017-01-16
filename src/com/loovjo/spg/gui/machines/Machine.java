@@ -3,6 +3,7 @@ package com.loovjo.spg.gui.machines;
 import java.awt.Graphics2D;
 
 import com.loovjo.spg.chem.Material;
+import com.loovjo.spg.chem.Molecule;
 import com.loovjo.spg.gui.Board;
 
 public abstract class Machine {
@@ -12,7 +13,7 @@ public abstract class Machine {
 	public Board owner;
 
 	public boolean canRecieveFrom(Machine m, int port) {
-		return false;
+		return true;
 	}
 	
 	public Material recieve(Material m, Machine mach, int port) {
@@ -38,5 +39,13 @@ public abstract class Machine {
 	public void clicked(int button) {
 
 	}
+	
+	public String getInfo() {
+		return "Coords: " + x + ", " + y;
+	}
 
+	public Molecule getMol(int inPort) {
+		return null;
+	}
+	
 }

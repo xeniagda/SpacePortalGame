@@ -15,16 +15,18 @@ public class MachinePipe extends MachineContainer {
 	public int outDirection; // 0 = up, 1 = right, 2 = down, 3 = left
 	public int outPort;
 
-	public final Material transfer;
+	public final double transferRate;
 
-	public MachinePipe(int x, int y, int inDirection, int outDirection, Material transfer, double capacity,
-			Board owner) {
+	public MachinePipe(int x, int y, int inDirection, int outDirection, int inPort, int outPort, double transferRate,
+			double capacity, Board owner) {
 		super(x, y, Material.makeFromWeight(null, 0), capacity, owner);
 		assert (inDirection != outDirection);
 		this.inDirection = inDirection;
 		this.outDirection = outDirection;
-		this.transfer = transfer;
+		this.transferRate = transferRate;
 
+		this.inPort = inPort;
+		this.outPort = outPort;
 	}
 
 	@Override
@@ -124,10 +126,13 @@ public class MachinePipe extends MachineContainer {
 
 	@Override
 	public Material recieve(Material m, Machine mach, int port) {
+		if (mach == null && m.canMixWith(m)) {
+			content = content.mix(m);
+			return Material.makeFromWeight(null, 0);
+		}
 		if (canRecieveFrom(mach, port)) {
 			return super.recieve(m, mach, port);
 		}
-		System.out.println("Nope!");
 		return m;
 	}
 
@@ -147,8 +152,11 @@ public class MachinePipe extends MachineContainer {
 
 	@Override
 	public void update(float timeStep) {
-		Material currentTransfer = transfer.multiply(timeStep);
-
+		Material currentTransfer = Material.makeFromWeight(content.mol, transferRate * timeStep);
+		if (content.empty() && owner.getMachine(getStart()) != null) {
+			currentTransfer = Material.makeFromWeight(owner.getMachine(getStart()).getMol(inPort), transferRate * timeStep);
+		}
+		
 		if (owner.getMachine(getDestination()) != null)
 			owner.transfer(this, 0, owner.getMachine(getDestination()), outPort, currentTransfer);
 
@@ -156,4 +164,13 @@ public class MachinePipe extends MachineContainer {
 			owner.transfer(owner.getMachine(getStart()), inPort, this, 0, currentTransfer);
 	}
 
+	public String toString() {
+		return "MachinePipe(transferRate=" + transferRate + ",content=" + content + ")";
+	}
+
+	@Override
+	public String getInfo() {
+		return super.getInfo() + "\ninPort: " + inPort + "\noutPort: " + outPort + "\nTransfer per second: " + transferRate
+				+ "\nIO: " + inDirection + "/" + outDirection;
+	}
 }

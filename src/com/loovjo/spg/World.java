@@ -16,8 +16,8 @@ import com.loovjo.spg.gameobject.Player;
 import com.loovjo.spg.gameobject.parts.SpaceShipMainComputerRoom;
 import com.loovjo.spg.gameobject.utils.CollisionLineSegment;
 import com.loovjo.spg.gameobject.utils.LineSegment;
-import com.loovjo.spg.gameobject.utils.Textures;
 import com.loovjo.spg.gui.Gui;
+import com.loovjo.spg.utils.Textures;
 
 public class World {
 
