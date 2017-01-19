@@ -5,12 +5,14 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import javax.swing.plaf.synth.SynthSpinnerUI;
 
 import com.loovjo.loo2D.utils.Vector;
 import com.loovjo.spg.chem.Material;
+import com.loovjo.spg.chem.Molecule;
 import com.loovjo.spg.chem.Molecules;
 import com.loovjo.spg.gui.machines.Machine;
 import com.loovjo.spg.gui.machines.MachineBattery;
@@ -33,13 +35,20 @@ public class Board implements Gui {
 	private int w, h;
 
 	private int selX, selY;
+	private Molecule selMol = Molecules.URANIUM;
 
 	public boolean[] pressedKeys = new boolean[256];
 
+	private float lastTimeStep;
+
 	public Board() {
-		machines.add(new MachineContainer(2, 2, Material.makeFromWeight(Molecules.URANIUM, 5), 5, this));
-		machines.add(new MachineNuclearGenerator(2, 4, 1, 0.2, this));
-		machines.add(new MachineBattery(4, 4, 5, this));
+		/*
+		 * machines.add(new MachineContainer(2, 0,
+		 * Material.makeFromWeight(Molecules.URANIUM, 0.00001), 5, this));
+		 *
+		 * machines.add(new MachineNuclearGenerator(2, 4, 1, 2, this));
+		 * machines.add(new MachineBattery(4, 4, 5, this));
+		 */
 	}
 
 	@Override
@@ -75,6 +84,7 @@ public class Board implements Gui {
 					g.drawImage(Textures.GUI_CELL.toBufferedImage(), xPos, yPos, cellSize, cellSize, null);
 				}
 				if (x == selX && y == selY) {
+					g.setColor(Color.black);
 					g.setStroke(new BasicStroke());
 
 					g.drawRect(xPos, yPos, cellSize, cellSize);
@@ -83,22 +93,27 @@ public class Board implements Gui {
 		}
 		if (pressedKeys[KeyEvent.VK_ALT]) {
 			Machine m = getMachine(selX, selY);
-			if (m != null) {
-				String[] info = m.getInfo().split("\n");
-				g.setColor(Color.white);
-				g.setFont(new Font("Helvetica", Font.PLAIN, 12));
 
-				for (int i = 0; i < info.length; i++) {
-					int y = i * g.getFont().getSize();
-					if (y > roundSize / 2) {
-						g.drawString(info[i], 2 + originX, originY + y + g.getFont().getSize());
-					} else {
-						int y1 = y + g.getFont().getSize() / 3;
-						g.drawString(info[i], 2 + originX + roundSize / 2 - (int) Math.sqrt(roundSize * y1 - y1 * y1),
-								originY + y + g.getFont().getSize());
-					}
+			String info_ = "SelMol: " + selMol + "\n";
+			if (m != null) {
+				info_ += m.toString() + "#" + m.hashCode() + "\n" + m.getInfo();
+			}
+
+			String[] info = info_.split("\n");
+			g.setColor(Color.white);
+			g.setFont(new Font("Monaco", Font.PLAIN, 18));
+
+			for (int i = 0; i < info.length; i++) {
+				int y = i * g.getFont().getSize();
+				if (y > roundSize / 2) {
+					g.drawString(info[i], 2 + originX, originY + y + g.getFont().getSize());
+				} else {
+					int y1 = y + 2;
+					g.drawString(info[i], 2 + originX + roundSize / 2 - (int) Math.sqrt(roundSize * y1 - y1 * y1),
+							originY + y + g.getFont().getSize());
 				}
 			}
+
 		}
 	}
 
@@ -137,6 +152,7 @@ public class Board implements Gui {
 
 	@Override
 	public void update(float timeStep) {
+		lastTimeStep = timeStep;
 		machines.forEach(m -> m.update(timeStep));
 	}
 
@@ -146,20 +162,29 @@ public class Board implements Gui {
 		int x = (int) p.getX();
 		int y = (int) p.getY();
 
-		selX = x;
-		selY = y;
-
 		Machine m = getMachine(x, y);
-		if (m != null) {
-			m.clicked(button);
+		if (button == 1) {
+			selX = x;
+			selY = y;
+			if (m != null) {
+				m.clicked(button);
+			}
+		}
+		if (button == 3) {
+			m.update(lastTimeStep);
 		}
 	}
 
 	public void transfer(Machine m1, int port1, Machine m2, int port2, Material m) {
 
-		if (!m2.canRecieveFrom(m1, port1))
+		if (!m1.canTake(m, m2, port1) || !m2.canRecieve(m, m1, port1))
 			return;
+
 		Material taken = m1.take(m, m2, port1);
+
+		if (taken.empty())
+			return;
+
 		Material left = m2.recieve(taken, m1, port2);
 
 		if (!left.empty()) {
@@ -170,6 +195,7 @@ public class Board implements Gui {
 				System.out.println("Left: " + a + " from " + m1 + ":" + port1 + " (" + m2 + ":" + port2 + ")");
 			}
 		}
+
 	}
 
 	@Override
@@ -206,14 +232,27 @@ public class Board implements Gui {
 			if (m != null && m instanceof MachinePipe) {
 				((MachinePipe) m).clicked(pressedKeys[KeyEvent.VK_SHIFT] ? 1 : 3);
 			} else {
-				machines.add(new MachinePipe(selX, selY, 0, 1, 0, 0, 1, 0.7,
-						this));
+				machines.remove(m);
+				machines.add(new MachinePipe(selX, selY, 0, 2, 0, 0, 1, 0.7, this));
 			}
 		}
 		if (button == KeyEvent.VK_X) {
 			Machine m = getMachine(selX, selY);
 			if (m != null) {
 				machines.remove(m);
+			}
+		}
+		if (button == KeyEvent.VK_E) {
+			Machine m = getMachine(selX, selY);
+			if (m != null && m instanceof MachineContainer) {
+				((MachineContainer) m).content = Material.makeFromWeight(null, 0);
+			}
+		}
+		if (button == KeyEvent.VK_F) {
+			Machine m = getMachine(selX, selY);
+			if (m != null && m instanceof MachineContainer) {
+				MachineContainer m_ = (MachineContainer) m;
+				m_.content = Material.makeFromWeight(selMol, m_.capacity);
 			}
 		}
 		if (button == KeyEvent.VK_I) {
@@ -227,6 +266,47 @@ public class Board implements Gui {
 			if (m != null && m instanceof MachinePipe) {
 				((MachinePipe) m).outPort += pressedKeys[KeyEvent.VK_SHIFT] ? -1 : 1;
 			}
+		}
+		if (button == KeyEvent.VK_B) {
+			Machine m = getMachine(selX, selY);
+			if (m != null) {
+				machines.remove(m);
+			}
+			machines.add(new MachineBattery(selX, selY, 10, this));
+		}
+		if (button == KeyEvent.VK_C) {
+			Machine m = getMachine(selX, selY);
+			if (m != null) {
+				machines.remove(m);
+			}
+			machines.add(new MachineContainer(selX, selY, Material.makeFromWeight(null, 0), 5, this));
+		}
+		if (button == KeyEvent.VK_N) {
+			Machine m = getMachine(selX, selY);
+			if (m != null) {
+				machines.remove(m);
+			}
+
+			machines.add(new MachineNuclearGenerator(selX, selY, 5, 4, this));
+		}
+		if (button == KeyEvent.VK_1 || button == KeyEvent.VK_2) {
+			int add = button == KeyEvent.VK_1 ? 1 : -1;
+			ArrayList<Molecule> m = new ArrayList<Molecule>();
+			for (Field f : Molecules.class.getFields()) {
+				try {
+					Object o = f.get(null);
+					if (o instanceof Molecule) {
+						m.add((Molecule) o);
+					}
+				} catch (Exception e) {
+					continue;
+				}
+			}
+			int index = m.indexOf(selMol) + add;
+			while (index < 0)
+				index += m.size();
+			index = index % m.size();
+			selMol = m.get(index);
 		}
 	}
 

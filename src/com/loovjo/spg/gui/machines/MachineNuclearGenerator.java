@@ -16,7 +16,7 @@ public class MachineNuclearGenerator extends Machine {
 
 	private Material energy = Material.makeFromWeight(null, 0);
 	private final double energyCapacity;
-
+	
 	private final double efficiency;
 
 	/*

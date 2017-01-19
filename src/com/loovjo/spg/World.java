@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.function.UnaryOperator;
 
 import com.loovjo.loo2D.utils.ImageLoader;
 import com.loovjo.loo2D.utils.Vector;
@@ -24,6 +26,8 @@ public class World {
 	public float zoom = 80; // Pixel per unit
 
 	public ArrayList<GameObject> objects = new ArrayList<GameObject>();
+	
+	public HashMap<Integer, UnaryOperator<World>> keyBindings = new HashMap<Integer, UnaryOperator<World>>();
 
 	public Vector camPos = new Vector(0, 0); // In units
 
@@ -50,6 +54,7 @@ public class World {
 	private Gui gui = null;
 
 	public World() {
+		
 		try {
 			background = Textures.BACKGROUND.toBufferedImage();
 		} catch (Exception e) {

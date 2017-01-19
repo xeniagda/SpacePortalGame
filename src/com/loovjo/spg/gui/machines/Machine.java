@@ -11,13 +11,24 @@ public abstract class Machine {
 	public final int x, y;
 
 	public Board owner;
-
-	public boolean canRecieveFrom(Machine m, int port) {
+	
+	
+	/*
+	 * Gives true if this machine can recieve m from mach in port.
+	 * If m or mach is null, this should return true.
+	 */
+	public boolean canRecieve(Material m, Machine mach, int port) {
 		return true;
 	}
 	
 	public Material recieve(Material m, Machine mach, int port) {
 		return Material.makeFromWeight(null, 0);
+	}
+	/*
+	 * Same as canRecieve, but instead of recieving, it's taking
+	 */
+	public boolean canTake(Material m, Machine mach, int port) {
+		return true;
 	}
 	
 	public Material take(Material m, Machine mach, int port) {

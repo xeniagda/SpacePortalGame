@@ -30,20 +30,20 @@ public class MachineContainer extends Machine {
 	}
 
 	@Override
-	public boolean canRecieveFrom(Machine m, int port) {
-		return m == null || content.getWeight() < capacity;
+	public boolean canRecieve(Material m, Machine mach, int port) {
+		return mach == null || m == null || content.canMixWith(m) && content.mix(m).getWeight() < capacity;
 	}
-	
+
 	@Override
 	public Material recieve(Material m, Machine mach, int port) {
-		if (!canRecieveFrom(mach, port))
+		if (!canRecieve(m, mach, port))
 			return m;
 		if (m.canMixWith(content)) {
 			content = content.mix(m);
+
 			if (content.getWeight() > capacity) {
 				double difference = content.getWeight() - capacity;
 				content = Material.makeFromWeight(content.mol, capacity);
-				
 
 				return Material.makeFromWeight(content.mol, difference);
 			}
@@ -52,29 +52,42 @@ public class MachineContainer extends Machine {
 		}
 		return m;
 	}
+	
+	@Override
+	public boolean canTake(Material m, Machine mach, int port) {
+		return m == null || mach == null || m.getWeight() < content.getWeight();
+	}
+	
+	@Override
+	public Material take(Material m, Machine mach, int port) {
+		if (content.canMixWith(m) && !content.empty()) {
+
+			if (content.getWeight() < m.getWeight()) {
+				float weight = content.getWeight();
+				content = Material.makeFromWeight(null, 0);
+				return Material.makeFromWeight(m.mol, weight);
+			}
+
+			double amount = Math.min(m.getWeight(), content.getWeight());
+
+			content = Material.makeFromWeight(content.mol, content.getWeight() - m.getWeight());
+
+			return Material.makeFromWeight(content.mol, amount);
+		}
+		return Material.makeFromWeight(null, 0);
+	}
 
 	public String toString() {
 		return "Container(" + content + ")";
 	}
 
-	@Override
-	public Material take(Material m, Machine mach, int port) {
-		if (content.canMixWith(m) && !content.empty()) {
-			double amount = Math.min(m.getWeight(), content.getWeight());
-
-			content = Material.makeFromWeight(content.mol, content.getWeight() - m.getWeight());
-			return Material.makeFromWeight(content.mol, amount);
-		}
-		return Material.makeFromWeight(null, 0);
-	}
-	
 	public String getInfo() {
 		return super.getInfo() + "\nContent: " + content + "\nCapacity: " + capacity;
 	}
-	
+
 	@Override
 	public Molecule getMol(int port) {
 		return content.mol;
 	}
-	
+
 }

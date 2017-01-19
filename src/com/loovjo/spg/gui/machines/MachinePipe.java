@@ -49,7 +49,7 @@ public class MachinePipe extends MachineContainer {
 		float full = Math.min(1, content.getWeight() / (float) capacity);
 
 		if (full > 0) {
-			g.setColor(Color.red);
+			g.setColor(content.getColor());
 			g.setStroke(new BasicStroke((width + height) / 20));
 
 			g.drawLine(xStart, yStart, (int) (xStart + dx * full), (int) (yStart + dy * full));
@@ -120,20 +120,18 @@ public class MachinePipe extends MachineContainer {
 	}
 
 	@Override
-	public boolean canRecieveFrom(Machine m, int port) {
-		return m == null || super.canRecieveFrom(m, port) && new Vector(m.x, m.y).equals(getStart());
-	};
+	public boolean canRecieve(Material m, Machine mach, int port) {
+		return super.canRecieve(m, mach, port) && (m == null ? true : new Vector(mach.x, mach.y).equals(getStart()));
+	}
 
 	@Override
 	public Material recieve(Material m, Machine mach, int port) {
-		if (mach == null && m.canMixWith(m)) {
+		if (mach == null && m.canMixWith(content)) {
 			content = content.mix(m);
 			return Material.makeFromWeight(null, 0);
 		}
-		if (canRecieveFrom(mach, port)) {
-			return super.recieve(m, mach, port);
-		}
-		return m;
+		return super.recieve(m, mach, port);
+
 	}
 
 	@Override
@@ -153,15 +151,25 @@ public class MachinePipe extends MachineContainer {
 	@Override
 	public void update(float timeStep) {
 		Material currentTransfer = Material.makeFromWeight(content.mol, transferRate * timeStep);
-		if (content.empty() && owner.getMachine(getStart()) != null) {
-			currentTransfer = Material.makeFromWeight(owner.getMachine(getStart()).getMol(inPort), transferRate * timeStep);
+
+		if (content.empty() && owner.getMachine(getStart()) != null
+				&& !(owner.getMachine(getStart()) instanceof MachinePipe)) {
+			currentTransfer = Material.makeFromWeight(owner.getMachine(getStart()).getMol(inPort),
+					transferRate * timeStep);
 		}
 		
-		if (owner.getMachine(getDestination()) != null)
-			owner.transfer(this, 0, owner.getMachine(getDestination()), outPort, currentTransfer);
-
-		if (owner.getMachine(getStart()) != null)
+		float before = content.getWeight();
+		
+		if (owner.getMachine(getStart()) != null) {
 			owner.transfer(owner.getMachine(getStart()), inPort, this, 0, currentTransfer);
+		}
+		
+		float diff = content.getWeight() - before;
+		
+		if (owner.getMachine(getDestination()) != null && diff == 0) {
+			owner.transfer(this, 0, owner.getMachine(getDestination()), outPort, currentTransfer);
+		}
+
 	}
 
 	public String toString() {
@@ -170,7 +178,7 @@ public class MachinePipe extends MachineContainer {
 
 	@Override
 	public String getInfo() {
-		return super.getInfo() + "\ninPort: " + inPort + "\noutPort: " + outPort + "\nTransfer per second: " + transferRate
-				+ "\nIO: " + inDirection + "/" + outDirection;
+		return super.getInfo() + "\ninPort: " + inPort + "\noutPort: " + outPort + "\nTransfer per second: "
+				+ transferRate + "\nIO: " + inDirection + "/" + outDirection + "\nCanRecieveFromStart: " + canRecieve(Material.makeFromWeight(content.mol, 0.0001), owner.getMachine(getStart()), 0) + ", " + (content.empty() ? "" : content.getWeight() - capacity);
 	}
 }

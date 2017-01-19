@@ -37,6 +37,8 @@ public class GameScene implements Scene {
 	public boolean goingFast = true;
 
 	public int zoom = 0;
+	
+	private float lastTick = 0;
 
 	public GameScene() {
 
@@ -60,6 +62,8 @@ public class GameScene implements Scene {
 					lastTime = System.currentTimeMillis();
 
 					update_(delta * speed);
+					
+					lastTick = delta * speed;
 
 					world.zoom *= Math.pow(2, zoom * delta * speed);
 				}
@@ -196,52 +200,57 @@ public class GameScene implements Scene {
 
 	@Override
 	public void keyPressed(int keyCode) {
-
 		if (world.hasGui()) {
 			world.getGui().keyPressed(keyCode);
 		} else {
+			if (world.keyBindings.containsKey(keyCode)) {
+				world.keyBindings.get(keyCode).apply(world);
+			} else {
+				if (keyCode == KeyEvent.VK_SPACE)
+					world.camPos = world.getPlayer().posInSpace;
 
-			if (keyCode == KeyEvent.VK_SPACE)
-				world.camPos = world.getPlayer().posInSpace;
-			if (keyCode == KeyEvent.VK_ESCAPE)
-				paused = !paused;
+				if (keyCode == KeyEvent.VK_1)
+					zoom = 1;
+				if (keyCode == KeyEvent.VK_2)
+					zoom = -1;
 
-			if (keyCode == KeyEvent.VK_1)
-				zoom = 1;
-			if (keyCode == KeyEvent.VK_2)
-				zoom = -1;
+				if (keyCode == KeyEvent.VK_R) {
+					load();
+				}
 
-			if (keyCode == KeyEvent.VK_R) {
-				load();
-			}
+				if (keyCode == KeyEvent.VK_Z)
+					world.getPlayer().part.applyRotationForce(0.1);
+				if (keyCode == KeyEvent.VK_X)
+					world.getPlayer().part.applyRotationForce(-0.1);
 
-			if (keyCode == KeyEvent.VK_Z)
-				world.getPlayer().part.applyRotationForce(0.1);
-			if (keyCode == KeyEvent.VK_X)
-				world.getPlayer().part.applyRotationForce(-0.1);
-			if (keyCode == KeyEvent.VK_8) {
-				speed *= 10;
-			}
-			if (keyCode == KeyEvent.VK_9) {
-				speed /= 10;
-			}
-			if (keyCode == KeyEvent.VK_0) {
-				speed = SPEED_SLOW;
-			}
-			if (keyCode == KeyEvent.VK_T) {
-				if (world.active == null) {
-					world.active = world.objects.get(0).part;
-				} else {
-					int idx = world.objects.indexOf(world.active.objOwner) + 1;
-					if (idx == world.objects.size())
-						idx = 0;
-					world.active = world.objects.get(idx).part;
+				if (keyCode == KeyEvent.VK_0) {
+					speed = SPEED_SLOW;
+				}
+				if (keyCode == KeyEvent.VK_T) {
+					if (world.active == null) {
+						world.active = world.objects.get(0).part;
+					} else {
+						int idx = world.objects.indexOf(world.active.objOwner) + 1;
+						if (idx == world.objects.size())
+							idx = 0;
+						world.active = world.objects.get(idx).part;
+					}
+				}
+				if (keyCode == KeyEvent.VK_S) {
+					world.updateWorld(speed);
 				}
 			}
-			if (keyCode == KeyEvent.VK_S) {
-				world.updateWorld(speed);
-			}
-
+		}
+		if (keyCode == KeyEvent.VK_ESCAPE)
+			paused = !paused;
+		if (keyCode == KeyEvent.VK_8) {
+			speed *= 10;
+		}
+		if (keyCode == KeyEvent.VK_9) {
+			speed /= 10;
+		}
+		if (keyCode == KeyEvent.VK_T) {
+			world.updateWorld(lastTick);
 		}
 	}
 

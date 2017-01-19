@@ -16,7 +16,7 @@ public class MachineBattery extends MachineContainer {
 	@Override
 	public void draw(Graphics2D g, int posX, int posY, int width, int height) {
 
-		g.setColor(Color.green);
+		g.setColor(content.getColor());
 		int size = (int) (0.654 * height * (content.getWeight() / capacity));
 
 		g.fillRect(posX + width / 8, posY + (int) (0.816 * width) - size, 3 * width / 4, size);

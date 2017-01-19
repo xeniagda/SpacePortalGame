@@ -25,5 +25,4 @@ public class Textures {
 	public static final FastImage MACHINE_CONTAINER = ImageLoader.getImage("/Gui/MainComputerGui/Machine_Container.png");
 	public static final FastImage MACHINE_NUCLEAR = ImageLoader.getImage("/Gui/MainComputerGui/Machine_Nuclear.png");
 	public static final FastImage MACHINE_BATTERY = ImageLoader.getImage("/Gui/MainComputerGui/Machine_Battery.png");
-	
 }
