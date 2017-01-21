@@ -16,7 +16,7 @@ public class MachineNuclearGenerator extends Machine {
 
 	private Material energy = Material.makeFromWeight(null, 0);
 	private final double energyCapacity;
-	
+
 	private final double efficiency;
 
 	/*
@@ -32,6 +32,7 @@ public class MachineNuclearGenerator extends Machine {
 	@Override
 	public void draw(Graphics2D g, int posX, int posY, int width, int height) {
 		float green = (float) (energy.getWeight() / energyCapacity);
+		green = Math.min(1, Math.max(0, green));
 		g.setColor(new Color(0, green, 0.5f * (1 - green)));
 
 		int size = (int) (0.676 * height * (energy.getWeight() / energyCapacity));
@@ -57,13 +58,16 @@ public class MachineNuclearGenerator extends Machine {
 	@Override
 	public Material recieve(Material m, Machine mach, int port) {
 		if (port == 0 && m.getRadioActivity() > 0) {
-			energy = energy
-					.mix(Material.makeFromWeight(Molecules.ENERGON, m.getWeight() * m.getRadioActivity() * efficiency));
-			
+
+			double weightToEnergy = m.getRadioActivity() * efficiency;
+			energy = energy.mix(Material.makeFromWeight(Molecules.ENERGON, m.getWeight() * weightToEnergy));
+
 			if (energy.getWeight() > energyCapacity) {
+
+				double over = energy.getWeight() - energyCapacity;
 				energy = Material.makeFromWeight(energy.mol, energyCapacity);
 				
-				return m;
+				return Material.makeFromWeight(m.mol, over / weightToEnergy);
 			}
 			return Material.makeFromWeight(null, 0);
 		}
@@ -74,11 +78,11 @@ public class MachineNuclearGenerator extends Machine {
 		return "MachineNuclearGenerator(eff=" + efficiency + ", capacity=" + energyCapacity + ", stored=" + energy
 				+ ")";
 	}
-	
+
 	public String getInfo() {
 		return super.getInfo() + "\nEnergy: " + energy + "\nCapcity: " + energyCapacity + "\nEfficiency: " + efficiency;
 	}
-	
+
 	public Molecule getMol(int port) {
 		if (port == 0)
 			return null;
@@ -86,5 +90,5 @@ public class MachineNuclearGenerator extends Machine {
 			return Molecules.ENERGON;
 		return null;
 	}
-	
+
 }

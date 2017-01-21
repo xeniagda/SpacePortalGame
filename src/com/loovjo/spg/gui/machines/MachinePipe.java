@@ -114,22 +114,17 @@ public class MachinePipe extends MachineContainer {
 
 	@Override
 	public Material take(Material m, Machine mach, int port) {
-		if (new Vector(mach.x, mach.y).equals(getDestination()))
-			return super.take(m, mach, port);
-		return m;
+		return super.take(m, mach, port);
+
 	}
 
 	@Override
 	public boolean canRecieve(Material m, Machine mach, int port) {
-		return super.canRecieve(m, mach, port) && (m == null ? true : new Vector(mach.x, mach.y).equals(getStart()));
+		return super.canRecieve(m, mach, port) && (mach == null ? true : new Vector(mach.x, mach.y).equals(getStart()));
 	}
 
 	@Override
 	public Material recieve(Material m, Machine mach, int port) {
-		if (mach == null && m.canMixWith(content)) {
-			content = content.mix(m);
-			return Material.makeFromWeight(null, 0);
-		}
 		return super.recieve(m, mach, port);
 
 	}
@@ -157,15 +152,15 @@ public class MachinePipe extends MachineContainer {
 			currentTransfer = Material.makeFromWeight(owner.getMachine(getStart()).getMol(inPort),
 					transferRate * timeStep);
 		}
-		
+
 		float before = content.getWeight();
-		
+
 		if (owner.getMachine(getStart()) != null) {
 			owner.transfer(owner.getMachine(getStart()), inPort, this, 0, currentTransfer);
 		}
-		
+
 		float diff = content.getWeight() - before;
-		
+
 		if (owner.getMachine(getDestination()) != null && diff == 0) {
 			owner.transfer(this, 0, owner.getMachine(getDestination()), outPort, currentTransfer);
 		}
@@ -173,12 +168,14 @@ public class MachinePipe extends MachineContainer {
 	}
 
 	public String toString() {
-		return "MachinePipe(transferRate=" + transferRate + ",content=" + content + ")";
+		return "MachinePipe(transferRate=" + transferRate + ",content=" + content + ",capacity=" + capacity + ")";
 	}
 
 	@Override
 	public String getInfo() {
 		return super.getInfo() + "\ninPort: " + inPort + "\noutPort: " + outPort + "\nTransfer per second: "
-				+ transferRate + "\nIO: " + inDirection + "/" + outDirection + "\nCanRecieveFromStart: " + canRecieve(Material.makeFromWeight(content.mol, 0.0001), owner.getMachine(getStart()), 0) + ", " + (content.empty() ? "" : content.getWeight() - capacity);
+				+ transferRate + "\nIO: " + inDirection + "/" + outDirection + "\nCanRecieveFromStart: "
+				+ canRecieve(Material.makeFromWeight(content.mol, 0.0001), owner.getMachine(getStart()), 0) + ", "
+				+ (content.empty() ? "" : content.getWeight() - capacity);
 	}
 }

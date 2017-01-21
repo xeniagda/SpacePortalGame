@@ -31,7 +31,7 @@ public class MachineContainer extends Machine {
 
 	@Override
 	public boolean canRecieve(Material m, Machine mach, int port) {
-		return mach == null || m == null || content.canMixWith(m) && content.mix(m).getWeight() < capacity;
+		return m == null || content.canMixWith(m) && content.getWeight() < capacity;
 	}
 
 	@Override
@@ -43,6 +43,7 @@ public class MachineContainer extends Machine {
 
 			if (content.getWeight() > capacity) {
 				double difference = content.getWeight() - capacity;
+
 				content = Material.makeFromWeight(content.mol, capacity);
 
 				return Material.makeFromWeight(content.mol, difference);
@@ -52,16 +53,15 @@ public class MachineContainer extends Machine {
 		}
 		return m;
 	}
-	
+
 	@Override
 	public boolean canTake(Material m, Machine mach, int port) {
-		return m == null || mach == null || m.getWeight() < content.getWeight();
+		return m == null || mach == null || m.getWeight() > 0;
 	}
-	
+
 	@Override
 	public Material take(Material m, Machine mach, int port) {
-		if (content.canMixWith(m) && !content.empty()) {
-
+		if (canTake(m, mach, port) && content.canMixWith(m) && !content.empty()) {
 			if (content.getWeight() < m.getWeight()) {
 				float weight = content.getWeight();
 				content = Material.makeFromWeight(null, 0);
@@ -71,14 +71,14 @@ public class MachineContainer extends Machine {
 			double amount = Math.min(m.getWeight(), content.getWeight());
 
 			content = Material.makeFromWeight(content.mol, content.getWeight() - m.getWeight());
-
-			return Material.makeFromWeight(content.mol, amount);
+			
+			return Material.makeFromWeight(m.mol, amount);
 		}
 		return Material.makeFromWeight(null, 0);
 	}
 
 	public String toString() {
-		return "Container(" + content + ")";
+		return "Container(content=" + content + ",capacity=" + capacity + ")";
 	}
 
 	public String getInfo() {

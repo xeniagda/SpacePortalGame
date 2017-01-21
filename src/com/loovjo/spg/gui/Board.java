@@ -51,6 +51,14 @@ public class Board implements Gui {
 		 */
 	}
 
+	public boolean addMachine(Machine m) {
+		if (getMachine(m.x, m.y) != null) {
+			return false;
+		}
+		machines.add(m);
+		return true;
+	}
+
 	@Override
 	public void draw(Graphics2D g, int sWidth, int sHeight) {
 
@@ -175,24 +183,24 @@ public class Board implements Gui {
 		}
 	}
 
-	public void transfer(Machine m1, int port1, Machine m2, int port2, Material m) {
+	public void transfer(Machine from, int fromPort, Machine to, int toPort, Material m) {
 
-		if (!m1.canTake(m, m2, port1) || !m2.canRecieve(m, m1, port1))
+		if (!from.canTake(m, to, fromPort) || !to.canRecieve(m, from, fromPort))
 			return;
 
-		Material taken = m1.take(m, m2, port1);
+		Material taken = from.take(m, to, fromPort);
 
 		if (taken.empty())
 			return;
 
-		Material left = m2.recieve(taken, m1, port2);
+		Material left = to.recieve(taken, from, toPort);
 
 		if (!left.empty()) {
 
-			Material a = m1.recieve(left, null, port1);
+			Material a = from.recieve(left, null, fromPort);
 
 			if (!a.empty()) {
-				System.out.println("Left: " + a + " from " + m1 + ":" + port1 + " (" + m2 + ":" + port2 + ")");
+				// System.out.println("Left: " + a + " from " + from + ":" + fromPort + " (" + to + ":" + toPort + ")");
 			}
 		}
 
