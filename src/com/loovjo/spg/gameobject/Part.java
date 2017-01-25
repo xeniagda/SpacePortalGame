@@ -36,7 +36,7 @@ public class Part {
 
 	public ArrayList<Part> connected = new ArrayList<Part>();
 
-	public boolean DEBUG = true;
+	public boolean DEBUG = false;
 
 	public Vector lastPos;
 
@@ -300,8 +300,8 @@ public class Part {
 
 				Vector vel = getVel().sub(part.getVel());
 
-				part.applyForce(vel.mul(-1), ln.pos1);
-				applyForce(vel, ln.pos1);
+				part.applyForce(vel, ln.pos1);
+				applyForce(vel.mul(-1), ln.pos1);
 			}
 		}
 
@@ -391,27 +391,27 @@ public class Part {
 
 		Vector forceStartRelativeToMe = originInSpace.sub(getPosInSpace());
 		Vector forceEndRelativeToMe = forceStartRelativeToMe.add(force);
-		
+
 		double rotDiff = mod(forceStartRelativeToMe.getRotation() - forceEndRelativeToMe.getRotation(), 360);
-		
+
 		if (rotDiff > 180)
 			rotDiff -= 360;
-		
+
 		double len = (forceStartRelativeToMe.add(forceEndRelativeToMe).getLength()) / 2;
-		
+
 		System.out.println("Start: " + forceStartRelativeToMe);
 		System.out.println("End: " + forceEndRelativeToMe);
 		System.out.println("RotDiff: " + rotDiff);
 		System.out.println("Len: " + len);
-		
-		rotationVel += rotDiff / 10 * erf(len);
+
+		rotationVel += rotDiff / 10 * grad(len);
 
 		applyForceToParent(force, originInSpace);
 	}
 	
-	private double erf(double x) {
-		return (1 / (1 + Math.exp(1 - x)) - 1 / (1 + Math.E)
-				) * (1 + 1 / (1 + Math.E));
+	// Gives a nice gradient, (x = 0) = 0, (x -> ∞) = 1
+	private double grad(double x) {
+		return 2 / (1 + Math.exp(-x)) - 1;
 	}
 
 	public void applyRotationForce(double d) {
