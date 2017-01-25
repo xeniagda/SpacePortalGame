@@ -71,4 +71,8 @@ public class LineSegment {
 		return "LineSegment(pos1=" + pos1 + ", pos2=" + pos2 + ")";
 	}
 
+	public Vector midPoint() {
+		return pos1.add(pos2).div(2);
+	}
+
 }

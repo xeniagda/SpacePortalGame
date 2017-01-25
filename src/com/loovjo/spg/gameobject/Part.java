@@ -36,7 +36,7 @@ public class Part {
 
 	public ArrayList<Part> connected = new ArrayList<Part>();
 
-	public boolean DEBUG = false;
+	public boolean DEBUG = true;
 
 	public Vector lastPos;
 
@@ -253,10 +253,10 @@ public class Part {
 				rotationVel *= -0.5;
 			}
 		}
-		if (rotationVel > World.MAX_ROT)
-			rotationVel = World.MAX_ROT;
-		if (rotationVel < -World.MAX_ROT)
-			rotationVel = -World.MAX_ROT;
+		/*
+		 * if (rotationVel > World.MAX_ROT) rotationVel = World.MAX_ROT; if
+		 * (rotationVel < -World.MAX_ROT) rotationVel = -World.MAX_ROT;
+		 */
 
 		for (GameObject obj : objOwner.world.objects) {
 			if (obj == this.objOwner)
@@ -272,15 +272,15 @@ public class Part {
 
 		connected.forEach(part -> part.update(timeStep));
 
-		if (isSpreadingForceToParents) {
-
-			Vector delta = getStepVel();
-			Vector deltaForce = force.sub(delta);
-
-			applyForceToParent(deltaForce.mul(0.8f), origin);
-
-			isSpreadingForceToParents = false;
-		}
+		/*
+		 * if (isSpreadingForceToParents) {
+		 * 
+		 * Vector delta = getStepVel(); Vector deltaForce = force.sub(delta);
+		 * 
+		 * applyForceToParent(deltaForce.mul(0.8f), origin);
+		 * 
+		 * isSpreadingForceToParents = false; }
+		 */
 
 		lastPos = getPosInSpace();
 
@@ -292,17 +292,16 @@ public class Part {
 
 		for (LineSegment colLine : getCollisionLinesInSpace()) {
 
-			LineSegment ls = new LineSegment(colLine.pos1, colLine.pos1
-					.add(getStepVel().mul(part.getVel().getLength() + Math.abs(part.rotationVel) * part.size + 5)));
+			LineSegment ln = new LineSegment(colLine.pos1, colLine.pos1.add(getStepVel().sub(part.getStepVel())));
 
-			for (CollisionLineSegment cls : part.getIntersectors(ls)) {
+			for (CollisionLineSegment cls : part.getIntersectors(ln)) {
+				System.out.println(getID() + ", " + part.getID());
+				System.out.println(ln + ", " + cls);
 
-				System.out.println(getID() + "<->" + part.getID());
+				Vector vel = getVel().sub(part.getVel());
 
-				Vector back = getVel().add(cls.collision.getStepVel());
-
-				applyForce(back.mul(-weight * 2), cls.collision.getPosInSpace());
-				cls.collision.applyForce(back.div(cls.collision.weight), getPosInSpace());
+				part.applyForce(vel.mul(-1), ln.pos1);
+				applyForce(vel, ln.pos1);
 			}
 		}
 
@@ -385,24 +384,34 @@ public class Part {
 			objOwner.applyForce(force);
 	}
 
-	// Note: May not be 100% physically accurate
+	// Note: May not be 100% physically accurate.
 	public void applyForce(Vector force, Vector originInSpace) {
 
-		force = force.div(5);
+		System.out.println("Force: " + force);
 
-		Vector forceRelToMe = force.add(originInSpace).sub(getPosInSpace());
-		Vector originRelativeToMe = originInSpace.sub(getPosInSpace());
+		Vector forceStartRelativeToMe = originInSpace.sub(getPosInSpace());
+		Vector forceEndRelativeToMe = forceStartRelativeToMe.add(force);
+		
+		double rotDiff = mod(forceStartRelativeToMe.getRotation() - forceEndRelativeToMe.getRotation(), 360);
+		
+		if (rotDiff > 180)
+			rotDiff -= 360;
+		
+		double len = (forceStartRelativeToMe.add(forceEndRelativeToMe).getLength()) / 2;
+		
+		System.out.println("Start: " + forceStartRelativeToMe);
+		System.out.println("End: " + forceEndRelativeToMe);
+		System.out.println("RotDiff: " + rotDiff);
+		System.out.println("Len: " + len);
+		
+		rotationVel += rotDiff / 10 * erf(len);
 
-		double forceVel = Math.toRadians(forceRelToMe.getRotation());
-		double originVel = Math.toRadians(originRelativeToMe.getRotation());
-		double vel = (originVel - forceVel) * 25;
-
-		rotationVel += (float) vel;
-
-		isSpreadingForceToParents = true;
-		this.force = force.mul(5);
-		this.origin = originInSpace;
-
+		applyForceToParent(force, originInSpace);
+	}
+	
+	private double erf(double x) {
+		return (1 / (1 + Math.exp(1 - x)) - 1 / (1 + Math.E)
+				) * (1 + 1 / (1 + Math.E));
 	}
 
 	public void applyRotationForce(double d) {

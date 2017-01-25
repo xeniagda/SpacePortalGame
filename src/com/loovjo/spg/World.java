@@ -26,7 +26,7 @@ public class World {
 	public float zoom = 80; // Pixel per unit
 
 	public ArrayList<GameObject> objects = new ArrayList<GameObject>();
-	
+
 	public HashMap<Integer, UnaryOperator<World>> keyBindings = new HashMap<Integer, UnaryOperator<World>>();
 
 	public Vector camPos = new Vector(0, 0); // In units
@@ -54,7 +54,7 @@ public class World {
 	private Gui gui = null;
 
 	public World() {
-		
+
 		try {
 			background = Textures.BACKGROUND.toBufferedImage();
 		} catch (Exception e) {
@@ -191,11 +191,8 @@ public class World {
 
 	public void updateWorld(float timeStep) {
 		tick++;
-		if (hasGui()) {
-			gui.update(timeStep);
-		} else {
-			objects.forEach(o -> o.update(timeStep));
-		}
+		objects.forEach(o -> o.update(timeStep));
+
 	}
 
 	public void updateCamera(float timeStep) {

@@ -164,13 +164,16 @@ public class GameScene implements Scene {
 
 	@Override
 	public void mouseReleased(Vector pos, int button) {
+		currentPos = pos;
+		
 		if (world.hasGui()) {
 			world.getGui().mouseReleased(pos, button);
 		} else {
 			if (holding == 3) {
 				Vector diff = world.transformScreenToSpace(currentPos).sub(world.transformScreenToSpace(lastPos));
-
-				world.active.applyForce(diff, world.transformScreenToSpace(currentPos));
+				
+				
+				world.active.applyForce(diff, world.transformScreenToSpace(lastPos));
 
 				lastPos = pos;
 
