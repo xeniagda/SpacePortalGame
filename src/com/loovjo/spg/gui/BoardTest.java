@@ -16,7 +16,7 @@ public class BoardTest {
 	public void testTransferring() {
 		Main.SETUP();
 
-		Board board = new Board();
+		Board board = new Board(null);
 
 		float cap = 0.9999f;
 		float transferAmount = 0.4f;

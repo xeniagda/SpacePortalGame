@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import com.loovjo.spg.chem.Material;
 import com.loovjo.spg.chem.Molecule;
 import com.loovjo.spg.gui.Board;
+import com.loovjo.spg.utils.Textures;
 
 public abstract class Machine {
 
@@ -42,6 +43,7 @@ public abstract class Machine {
 	}
 
 	public void draw(Graphics2D g, int posX, int posY, int width, int height) {
+		g.drawImage(Textures.NOT_FOUND.toBufferedImage(), posX, posY, width, height, null);
 	}
 
 	public void update(float timeStep) {

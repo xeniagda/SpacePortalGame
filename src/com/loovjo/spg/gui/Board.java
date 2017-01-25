@@ -7,10 +7,10 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.loovjo.loo2D.utils.Vector;
+import com.loovjo.spg.World;
 import com.loovjo.spg.chem.Material;
 import com.loovjo.spg.chem.Molecule;
 import com.loovjo.spg.chem.Molecules;
@@ -41,7 +41,9 @@ public class Board implements Gui {
 
 	private float lastTimeStep;
 
-	public Board() {
+	public World world;
+
+	public Board(World world) {
 		/*
 		 * machines.add(new MachineContainer(2, 0,
 		 * Material.makeFromWeight(Molecules.URANIUM, 0.00001), 5, this));
@@ -49,6 +51,7 @@ public class Board implements Gui {
 		 * machines.add(new MachineNuclearGenerator(2, 4, 1, 2, this));
 		 * machines.add(new MachineBattery(4, 4, 5, this));
 		 */
+		this.world = world;
 	}
 
 	public boolean addMachine(Machine m) {
@@ -200,7 +203,8 @@ public class Board implements Gui {
 			Material a = from.recieve(left, null, fromPort);
 
 			if (!a.empty()) {
-				// System.out.println("Left: " + a + " from " + from + ":" + fromPort + " (" + to + ":" + toPort + ")");
+				// System.out.println("Left: " + a + " from " + from + ":" +
+				// fromPort + " (" + to + ":" + toPort + ")");
 			}
 		}
 
@@ -222,6 +226,10 @@ public class Board implements Gui {
 	public void keyPressed(int button) {
 
 		pressedKeys[button] = true;
+
+		if (button == KeyEvent.VK_SPACE) {
+			world.closeGui();
+		}
 
 		if (button == KeyEvent.VK_H) {
 			selX--;

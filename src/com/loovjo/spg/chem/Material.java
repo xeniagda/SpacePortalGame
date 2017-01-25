@@ -13,7 +13,6 @@ public class Material {
 	// If mol is an energon, 1 amount is 1 power unit
 	public final double amount;
 
-	@Deprecated
 	public Material(Molecule mol, double amount) {
 
 		if (amount <= 0 || mol == null) {
@@ -25,7 +24,7 @@ public class Material {
 		}
 	}
 
-	public float getWeight() { // In grams
+	public double getWeight() { // In grams
 		if (empty())
 			return 0;
 		if (mol.isEnergon()) {
@@ -66,11 +65,6 @@ public class Material {
 		return empty() ? "Material(null)" : "Material(" + getWeight() + " of " + mol + ")";
 	}
 
-	public static Material makeFromWeight(Molecule mol, double weight) {
-		float weightOfOne = new Material(mol, 1).getWeight();
-		return new Material(mol, weight / weightOfOne);
-	}
-
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof Material) {
@@ -88,4 +82,8 @@ public class Material {
 		return mol == null ? 0 : mol.toString().equals("U") ? 1 : 0;
 	}
 
+	public static Material makeFromWeight(Molecule mol, double weight) {
+		double weightOfOne = new Material(mol, 1).getWeight();
+		return new Material(mol, weight / weightOfOne);
+	}
 }
