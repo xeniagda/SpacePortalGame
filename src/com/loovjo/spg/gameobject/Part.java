@@ -272,15 +272,15 @@ public class Part {
 
 		connected.forEach(part -> part.update(timeStep));
 
-		/*
-		 * if (isSpreadingForceToParents) {
-		 * 
-		 * Vector delta = getStepVel(); Vector deltaForce = force.sub(delta);
-		 * 
-		 * applyForceToParent(deltaForce.mul(0.8f), origin);
-		 * 
-		 * isSpreadingForceToParents = false; }
-		 */
+		if (isSpreadingForceToParents) {
+
+			Vector delta = getStepVel();
+			Vector deltaForce = force.sub(delta);
+
+			applyForceToParent(deltaForce.mul(0.8f), origin);
+
+			isSpreadingForceToParents = false;
+		}
 
 		lastPos = getPosInSpace();
 
@@ -292,16 +292,18 @@ public class Part {
 
 		for (LineSegment colLine : getCollisionLinesInSpace()) {
 
-			LineSegment ln = new LineSegment(colLine.pos1, colLine.pos1.add(getStepVel().sub(part.getStepVel())));
+			LineSegment ls = new LineSegment(colLine.pos1,
+					colLine.pos1.add(getStepVel().mul(part.size).sub(part.getStepVel().mul(size))));
 
-			for (CollisionLineSegment cls : part.getIntersectors(ln)) {
-				System.out.println(getID() + ", " + part.getID());
-				System.out.println(ln + ", " + cls);
+			for (CollisionLineSegment cls : part.getIntersectors(ls)) {
 
-				Vector vel = getVel().sub(part.getVel());
+				System.out.println(getID() + "<->" + part.getID());
 
-				part.applyForce(vel, ln.pos1);
-				applyForce(vel.mul(-1), ln.pos1);
+				Vector back = cls.collision.getVel().mul((float) cls.collision.objOwner.getTotalWeight())
+						.sub(getVel().mul((float) objOwner.getTotalWeight() * 2));
+				
+				applyForce(back, cls.collision.getPosInSpace());
+				cls.collision.applyForce(back.mul(-1f), getPosInSpace());
 			}
 		}
 
@@ -387,8 +389,6 @@ public class Part {
 	// Note: May not be 100% physically accurate.
 	public void applyForce(Vector force, Vector originInSpace) {
 
-		System.out.println("Force: " + force);
-
 		Vector forceStartRelativeToMe = originInSpace.sub(getPosInSpace());
 		Vector forceEndRelativeToMe = forceStartRelativeToMe.add(force);
 
@@ -399,16 +399,13 @@ public class Part {
 
 		double len = (forceStartRelativeToMe.add(forceEndRelativeToMe).getLength()) / 2;
 
-		System.out.println("Start: " + forceStartRelativeToMe);
-		System.out.println("End: " + forceEndRelativeToMe);
-		System.out.println("RotDiff: " + rotDiff);
-		System.out.println("Len: " + len);
+		rotationVel += rotDiff / 20 * grad(len) / objOwner.getTotalWeight();
 
-		rotationVel += rotDiff / 10 * grad(len);
-
-		applyForceToParent(force, originInSpace);
+		isSpreadingForceToParents = true;
+		this.force = force;
+		this.origin = originInSpace;
 	}
-	
+
 	// Gives a nice gradient, (x = 0) = 0, (x -> ∞) = 1
 	private double grad(double x) {
 		return 2 / (1 + Math.exp(-x)) - 1;
@@ -437,6 +434,10 @@ public class Part {
 
 	public static float getRotation(Vector vec) {
 		return (float) Math.toRadians(new Vector(vec.getY(), -vec.getX()).getRotation());
+	}
+
+	public double getTotalChildWeight() {
+		return weight + connected.stream().mapToDouble(c -> c.getTotalChildWeight()).sum();
 	}
 
 }

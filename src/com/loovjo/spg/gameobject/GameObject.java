@@ -52,11 +52,15 @@ public class GameObject {
 
 	public void applyForce(Vector force) {
 
-		vel = vel.add(force);
+		vel = vel.add(force.div((float)getTotalWeight()));
 	}
 
 	public String toString() {
 		return "GameObject(name=\"" + name + "\")";
+	}
+
+	public double getTotalWeight() {
+		return part.getTotalChildWeight();
 	}
 
 }

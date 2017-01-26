@@ -113,7 +113,7 @@ public class World {
 
 	public void loadSnake() {
 		GameObject obj = new GameObject(this, new Vector(10, 0), "Snake");
-		Part first = new Part(new Vector(0, 0), new Vector(0, 0), obj, 0, 0.7f, 10000f,
+		Part first = new Part(new Vector(0, 0), new Vector(0, 0), obj, 0, 0.7f, 10f,
 				ImageLoader.getImage("/DebugSnakeThing/Part1.png"),
 				ImageLoader.getImage("/DebugSnakeThing/ColMesh.png"));
 		obj.part = first;
