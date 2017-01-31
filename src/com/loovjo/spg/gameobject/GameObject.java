@@ -60,7 +60,7 @@ public class GameObject {
 	}
 
 	public double getTotalWeight() {
-		return part.getTotalChildWeight();
+		return part.getTotalOwnWeight();
 	}
 
 }

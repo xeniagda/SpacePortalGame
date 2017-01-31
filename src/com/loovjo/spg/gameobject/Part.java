@@ -301,7 +301,7 @@ public class Part {
 
 				Vector back = cls.collision.getVel().mul((float) cls.collision.objOwner.getTotalWeight())
 						.sub(getVel().mul((float) objOwner.getTotalWeight() * 2));
-				
+
 				applyForce(back, cls.collision.getPosInSpace());
 				cls.collision.applyForce(back.mul(-1f), getPosInSpace());
 			}
@@ -399,7 +399,7 @@ public class Part {
 
 		double len = (forceStartRelativeToMe.add(forceEndRelativeToMe).getLength()) / 2;
 
-		rotationVel += rotDiff / 20 * grad(len) / objOwner.getTotalWeight();
+		rotationVel += rotDiff / 20 * grad(len) / getTotalOwnWeight();
 
 		isSpreadingForceToParents = true;
 		this.force = force;
@@ -412,7 +412,7 @@ public class Part {
 	}
 
 	public void applyRotationForce(double d) {
-		this.rotationVel += d;
+		this.rotationVel += d / getTotalOwnWeight();
 	}
 
 	public ArrayList<CollisionLineSegment> getIntersectors(LineSegment ln) {
@@ -436,8 +436,8 @@ public class Part {
 		return (float) Math.toRadians(new Vector(vec.getY(), -vec.getX()).getRotation());
 	}
 
-	public double getTotalChildWeight() {
-		return weight + connected.stream().mapToDouble(c -> c.getTotalChildWeight()).sum();
+	public double getTotalOwnWeight() {
+		return weight + connected.stream().mapToDouble(c -> c.getTotalOwnWeight()).sum();
 	}
 
 }
