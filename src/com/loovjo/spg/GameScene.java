@@ -8,12 +8,14 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Stack;
 
 import com.loovjo.loo2D.scene.Scene;
 import com.loovjo.loo2D.utils.Vector;
 import com.loovjo.spg.gameobject.GameObject;
 import com.loovjo.spg.gameobject.Part;
+import com.loovjo.spg.gameobject.player.Pose;
 import com.loovjo.spg.gameobject.utils.CollisionLineSegment;
 import com.loovjo.spg.gameobject.utils.LineSegment;
 
@@ -37,7 +39,7 @@ public class GameScene implements Scene {
 	public boolean goingFast = true;
 
 	public int zoom = 0;
-	
+
 	private float lastTick = 0;
 
 	public GameScene() {
@@ -62,7 +64,7 @@ public class GameScene implements Scene {
 					lastTime = System.currentTimeMillis();
 
 					update_(delta * speed);
-					
+
 					lastTick = delta * speed;
 
 					world.zoom *= Math.pow(2, zoom * delta * speed);
@@ -73,7 +75,7 @@ public class GameScene implements Scene {
 	}
 
 	public void load() {
-		world = new World();
+		world = new World(this);
 	}
 
 	@Override
@@ -121,8 +123,11 @@ public class GameScene implements Scene {
 		g.setFont(new Font("Helvetica Nueue", Font.BOLD, fontSize));
 		g.setColor(Color.white);
 
-		g.drawString("Active: " + (world.active == null ? "None" : world.active.getID()), 0, fontSize);
-		g.drawString("Speed: " + speed, 0, 2 * fontSize);
+		g.drawString("Active: " + world.active.map(active -> active.getID()).orElse("None"), 0, fontSize);
+		world.active.ifPresent(active -> g.drawString("Active force: " + (active.getForce()), 0, 2 * fontSize));
+
+		g.drawString("Player has pose?: " + world.getPlayer().part.getPose().isPresent(), 0, 3 * fontSize);
+		g.drawString("Speed: " + speed, 0, 4 * fontSize);
 
 	}
 
@@ -154,7 +159,7 @@ public class GameScene implements Scene {
 						distance = dist;
 					}
 				}
-				world.active = closest;
+				world.active = Optional.of(closest);
 			}
 
 			holding = button;
@@ -165,15 +170,14 @@ public class GameScene implements Scene {
 	@Override
 	public void mouseReleased(Vector pos, int button) {
 		currentPos = pos;
-		
+
 		if (world.hasGui()) {
 			world.getGui().mouseReleased(pos, button);
 		} else {
 			if (holding == 3) {
 				Vector diff = world.transformScreenToSpace(currentPos).sub(world.transformScreenToSpace(lastPos));
-				
-				
-				world.active.applyForce(diff, world.transformScreenToSpace(lastPos));
+
+				world.active.ifPresent(active -> active.applyForce(diff, world.transformScreenToSpace(lastPos)));
 
 				lastPos = pos;
 
@@ -222,25 +226,36 @@ public class GameScene implements Scene {
 				}
 
 				if (keyCode == KeyEvent.VK_Z)
-					world.getPlayer().part.applyRotationForce(0.1);
+					world.active.ifPresent(active -> active.applyRotationForce(1));
 				if (keyCode == KeyEvent.VK_X)
-					world.getPlayer().part.applyRotationForce(-0.1);
+					world.active.ifPresent(active -> active.applyRotationForce(-1));
+
+				if (keyCode == KeyEvent.VK_3)
+					world.getPlayer().part.removePose();
+				if (keyCode == KeyEvent.VK_4)
+					world.getPlayer().part.applyPose(Pose.PLAYER_POSE_1);
+				if (keyCode == KeyEvent.VK_5)
+					world.getPlayer().part.applyPose(Pose.PLAYER_POSE_2);
 
 				if (keyCode == KeyEvent.VK_0) {
 					speed = SPEED_SLOW;
 				}
-				if (keyCode == KeyEvent.VK_T) {
-					if (world.active == null) {
-						world.active = world.objects.get(0).part;
+				if (keyCode == KeyEvent.VK_MINUS) {
+					world.active.ifPresent(active -> active.getAllChildren().forEach(part -> part.applyForce(new Vector(Math.random() - 0.5, Math.random() - 0.5), part.getPosInSpace())));
+				}
+				if (keyCode == KeyEvent.VK_TAB) {
+					if (!world.active.isPresent()) {
+						world.active = Optional.of(world.objects.get(0).part);
 					} else {
-						int idx = world.objects.indexOf(world.active.objOwner) + 1;
+						int idx = world.objects.indexOf(world.active.get().objOwner) + 1;
 						if (idx == world.objects.size())
 							idx = 0;
-						world.active = world.objects.get(idx).part;
+						world.active = Optional.of(world.objects.get(idx).part);
 					}
 				}
 				if (keyCode == KeyEvent.VK_S) {
-					world.updateWorld(speed);
+					world.active
+							.ifPresent(active -> active.applyForce(active.getForce().mul(-2), active.getPosInSpace()));
 				}
 			}
 		}

@@ -9,11 +9,13 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.loovjo.loo2D.utils.FastImage;
 import com.loovjo.loo2D.utils.Vector;
 import com.loovjo.spg.World;
+import com.loovjo.spg.gameobject.player.Pose;
 import com.loovjo.spg.gameobject.utils.CollisionLineSegment;
 import com.loovjo.spg.gameobject.utils.LineSegment;
 
@@ -29,14 +31,14 @@ public class Part {
 	public Part owner;
 	public GameObject objOwner;
 
-	public float rotation; // Radians
-	public float rotationVel = 0;
+	public double rotation; // Radians
+	public double rotationVel = 0;
 
 	public FastImage texture;
 
 	public ArrayList<Part> connected = new ArrayList<Part>();
 
-	public boolean DEBUG = false;
+	public boolean DEBUG = true;
 
 	public Vector lastPos;
 
@@ -46,8 +48,8 @@ public class Part {
 	public Vector force, origin;
 
 	public boolean hasRotLimit = false;
-	public float rotLimitMin = 0;
-	public float rotLimitMax = 0;
+	public double rotLimitMin = 0;
+	public double rotLimitMax = 0;
 
 	public float collisionTime = 0;
 
@@ -57,6 +59,10 @@ public class Part {
 	public ArrayList<LineSegment> collisionLines = new ArrayList<LineSegment>();
 
 	private Vector __vel = new Vector(0, 0);
+
+	private float relativeZIndex;
+
+	private Optional<Pose> toPose = Optional.empty();
 
 	public Part(Vector connectionRelativeToOwner, Vector connectionRelativeToMe, Part owner, float rotation, float size,
 			float weight, FastImage texture) {
@@ -76,6 +82,7 @@ public class Part {
 
 	public Part(Vector connectionRelativeToOwner, Vector connectionRelativeToMe, Part owner, float rotation, float size,
 			float weight, FastImage texture, FastImage colMesh) {
+
 		this(connectionRelativeToOwner, connectionRelativeToMe, owner, rotation, size, weight, texture);
 
 		setColMesh(colMesh);
@@ -102,8 +109,8 @@ public class Part {
 
 	public void setRotLimit(double min, double max) {
 		hasRotLimit = true;
-		rotLimitMin = (float) min + rotation;
-		rotLimitMax = (float) max + rotation;
+		rotLimitMin = min;
+		rotLimitMax = max;
 	}
 
 	public void setColMesh(FastImage colMesh) {
@@ -137,6 +144,10 @@ public class Part {
 	public void draw(Graphics g, int width, int height) {
 		Graphics2D g2 = (Graphics2D) g;
 
+		connected.stream().filter(c -> c.relativeZIndex < 0)
+				.sorted((c1, c2) -> Float.compare(c1.relativeZIndex, c2.relativeZIndex))
+				.forEach(part -> part.draw(g2, width, height));
+
 		AffineTransform old = g2.getTransform();
 
 		Vector myPos = getPosInSpace();
@@ -164,7 +175,7 @@ public class Part {
 
 		if (DEBUG) {
 
-			boolean isActive = this == objOwner.world.active;
+			boolean isActive = objOwner.world.active.isPresent() && this == objOwner.world.active.get();
 
 			g2.setColor(Color.blue);
 			g2.fillOval((int) myPosOnScreen.getX() - 5, (int) myPosOnScreen.getY(), 10, 10);
@@ -196,7 +207,9 @@ public class Part {
 					(int) velPosOnScreen.getY());
 		}
 
-		connected.forEach(part -> part.draw(g2, width, height));
+		connected.stream().filter(c -> c.relativeZIndex >= 0)
+				.sorted((c1, c2) -> Float.compare(c1.relativeZIndex, c2.relativeZIndex))
+				.forEach(part -> part.draw(g2, width, height));
 	}
 
 	// Gives a blurred version of the texture, so that when the screen is zoomed
@@ -284,26 +297,50 @@ public class Part {
 
 		lastPos = getPosInSpace();
 
+		if (toPose.isPresent()) {
+			Pose pose = toPose.get();
+
+			if (pose.wantedRotation.isPresent()) {
+				double force = timeStep * 20;
+				
+				double wantedRot = pose.wantedRotation.get() - rotation;
+				
+				double wantedVel = Math.signum(wantedRot) * (Math.sqrt(Math.abs(wantedRot) * force * 10 + 1/4) - 1/2);
+				
+				if (Math.abs(rotationVel - wantedVel) < force)
+					rotationVel = wantedVel;
+				if (rotationVel < wantedVel) {
+					rotationVel += force;
+				}
+				else {
+					rotationVel -= force;
+				}
+			}
+		}
+
 	}
 
-	// Note: This assumes that very big objects doesn't move very quickly or
-	// rotates fast.
+	// Eh, close enough
 	private void checkCollosion(Part part) {
-
 		for (LineSegment colLine : getCollisionLinesInSpace()) {
 
-			LineSegment ls = new LineSegment(colLine.pos1,
-					colLine.pos1.add(getStepVel().mul(part.size).sub(part.getStepVel().mul(size))));
+			LineSegment ls = new LineSegment(colLine.pos1, colLine.pos1.add(getStepVel()).add(part.getStepVel()));
 
 			for (CollisionLineSegment cls : part.getIntersectors(ls)) {
 
 				System.out.println(getID() + "<->" + part.getID());
 
-				Vector back = cls.collision.getVel().mul((float) cls.collision.objOwner.getTotalWeight())
-						.sub(getVel().mul((float) objOwner.getTotalWeight() * 2));
+				Vector back = cls.collision.getForce().sub(getVel().mul((float) objOwner.getTotalWeight() * 2));
+
+				float velLength = getVel().sub(cls.collision.getVel()).getLength();
+
+				if (back.getLength() > velLength)
+					back.setLength(velLength);
 
 				applyForce(back, cls.collision.getPosInSpace());
+
 				cls.collision.applyForce(back.mul(-1f), getPosInSpace());
+
 			}
 		}
 
@@ -334,14 +371,14 @@ public class Part {
 	}
 
 	public List<LineSegment> getCollisionLinesInSpace() {
-		float rotation = getTotalRotation();
+		double rotation = getTotalRotation();
 		List<LineSegment> inSpace = collisionLines.stream().map(LineSegment::clone)
-				.map(l -> l.rotate(rotation).add(getPosInSpace())).collect(Collectors.toList());
+				.map(l -> l.rotate((float)rotation).add(getPosInSpace())).collect(Collectors.toList());
 
 		return inSpace;
 	}
 
-	public float getTotalRotation() {
+	public double getTotalRotation() {
 		if (owner == null)
 			return rotation;
 		else
@@ -350,7 +387,7 @@ public class Part {
 
 	public Vector getPosInSpace() {
 		Vector ownerPos = null;
-		float rot = rotation;
+		double rot = rotation;
 		if (owner != null) {
 			ownerPos = owner.getPosInSpace();
 			rot = owner.getTotalRotation();
@@ -401,9 +438,12 @@ public class Part {
 
 		rotationVel += rotDiff / 20 * grad(len) / getTotalOwnWeight();
 
-		isSpreadingForceToParents = true;
-		this.force = force;
-		this.origin = originInSpace;
+		applyForceToParent(forceEndRelativeToMe, originInSpace);
+
+		/*
+		 * isSpreadingForceToParents = true; this.force = force; this.origin =
+		 * originInSpace;
+		 */
 	}
 
 	// Gives a nice gradient, (x = 0) = 0, (x -> ∞) = 1
@@ -438,6 +478,49 @@ public class Part {
 
 	public double getTotalOwnWeight() {
 		return weight + connected.stream().mapToDouble(c -> c.getTotalOwnWeight()).sum();
+	}
+
+	public Vector getForce() {
+		return getVel().mul((float) objOwner.getTotalWeight());
+	}
+
+	public float getRelativeZIndex() {
+		return relativeZIndex;
+	}
+
+	public void setRelativeZIndex(float relativeZIndex) {
+		this.relativeZIndex = relativeZIndex;
+	}
+
+	public boolean canApplyPose(Pose pose) {
+		if (pose.children.size() != connected.size())
+			return false;
+		for (int i = 0; i < connected.size(); i++)
+			if (!connected.get(i).canApplyPose(pose.children.get(i)))
+				return false;
+		return true;
+	}
+
+	public void applyPose(Pose pose) {
+		assert (canApplyPose(pose));
+		toPose = Optional.of(pose);
+		for (int i = 0; i < connected.size(); i++)
+			connected.get(i).applyPose(pose.children.get(i));
+	}
+
+	public Optional<Pose> getPose() {
+		return toPose.map(Pose::clone);
+	}
+
+	public void removePose() {
+		toPose = Optional.empty();
+		connected.stream().forEach(Part::removePose);
+	}
+
+	public ArrayList<Part> getAllChildren() {
+		ArrayList<Part> children = new ArrayList<Part>(connected);
+		connected.forEach(c -> children.addAll(c.getAllChildren()));
+		return children;
 	}
 
 }

@@ -17,7 +17,7 @@ public class SpaceShipMainComputerRoom extends Part {
 	private Board gui;
 
 	public SpaceShipMainComputerRoom(GameObject owner) {
-		super(new Vector(0, 0), new Vector(0, 0), owner, 0, 10, 40, Textures.SPACE_SHIP_MAIN_ROOM,
+		super(new Vector(0, 0), new Vector(0, 0), owner, 0, 7, 40, Textures.SPACE_SHIP_MAIN_ROOM,
 				Textures.SPACE_SHIP_MAIN_ROOM_COLMESH);
 		gui = new Board(objOwner.world);
 	
@@ -32,7 +32,9 @@ public class SpaceShipMainComputerRoom extends Part {
 			@Override
 			public Material recieve(Material m, Machine mach, int port) {
 				if (canRecieve(m, mach, port)) {
-					part.objOwner.applyForce(new Vector(0, 10 * m.getWeight()));
+					part.objOwner.applyForce(new Vector(0, getTotalOwnWeight() * m.getWeight()));
+					
+					part.objOwner.world.getPlayer().applyForce(new Vector(0, m.getWeight() * part.objOwner.world.getPlayer().getTotalWeight()));
 					
 					return Material.makeFromWeight(null, 0);
 				}

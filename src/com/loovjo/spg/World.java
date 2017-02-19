@@ -8,14 +8,15 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 import com.loovjo.loo2D.utils.ImageLoader;
 import com.loovjo.loo2D.utils.Vector;
 import com.loovjo.spg.gameobject.GameObject;
 import com.loovjo.spg.gameobject.Part;
-import com.loovjo.spg.gameobject.Player;
 import com.loovjo.spg.gameobject.parts.SpaceShipMainComputerRoom;
+import com.loovjo.spg.gameobject.player.Player;
 import com.loovjo.spg.gameobject.utils.CollisionLineSegment;
 import com.loovjo.spg.gameobject.utils.LineSegment;
 import com.loovjo.spg.gui.Gui;
@@ -49,11 +50,14 @@ public class World {
 	public static float MAX_SPEED = 10;
 	public static float MAX_ROT = 3;
 
-	public Part active = null;
+	public Optional<Part> active = Optional.empty();
 
 	private Gui gui = null;
 
-	public World() {
+	public GameScene owner;
+
+	public World(GameScene scene) {
+		owner = scene;
 
 		try {
 			background = Textures.BACKGROUND.toBufferedImage();
@@ -63,35 +67,64 @@ public class World {
 
 		Player player = new Player(this, new Vector(0, 0), "Player");
 
-		Part playerBody = new Part(new Vector(0, 0), new Vector(0, 0), player, 0, 1, 1, Textures.PLAYER_BODY,
+		Part playerBody = new Part(new Vector(0, 0), new Vector(0, 0), player, 0, 0.7f, 1, Textures.PLAYER_BODY,
 				Textures.PLAYER_BODY_COLMESH);
-		Part armLeft1 = new Part(new Vector(-0.2, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI / 2 * 3, 0.5f,
-				1, Textures.PLAYER_ARM, Textures.PLAYER_ARM_COLMESH);
 
-		Part armRight1 = new Part(new Vector(0.2, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI / 2, 0.5f, 1,
+		Part armLeft1 = new Part(new Vector(0, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI, 0.5f, 1,
 				Textures.PLAYER_ARM, Textures.PLAYER_ARM_COLMESH);
+		Part armRight1 = new Part(new Vector(0, -0.5), new Vector(0, -0.3), playerBody, (float) Math.PI, 0.5f, 1,
+				Textures.PLAYER_ARM, Textures.PLAYER_ARM_COLMESH);
+
+		Part legLeft1 = new Part(new Vector(0, 0.35), new Vector(0, -0.3), playerBody, (float) Math.PI, 0.5f, 1,
+				Textures.PLAYER_LEG_1, Textures.PLAYER_LEG_1_COLMESH);
+		legLeft1.setRelativeZIndex(-1);
+
+		Part legLeft2 = new Part(new Vector(0, -0.25), new Vector(0, -0.2), legLeft1, 0, 0.5f, 1, Textures.PLAYER_LEG_2,
+				Textures.PLAYER_LEG_2_COLMESH);
+		
+		Part legRight1 = new Part(new Vector(0, 0.35), new Vector(0, -0.3), playerBody, (float) Math.PI, 0.5f, 1,
+				Textures.PLAYER_LEG_1, Textures.PLAYER_LEG_1_COLMESH);
+		legRight1.setRelativeZIndex(-1);
+
+		Part legRight2 = new Part(new Vector(0, -0.25), new Vector(0, -0.2), legRight1, 0, 0.5f, 1, Textures.PLAYER_LEG_2,
+				Textures.PLAYER_LEG_2_COLMESH);
+		
+
+		armLeft1.setRelativeZIndex(-1f);
+		
+		
 		Part armLeft2 = new Part(new Vector(0, -0.2), new Vector(0, -0.2), armLeft1, 0, 0.4f, 1, Textures.PLAYER_ARM,
 				Textures.PLAYER_ARM_COLMESH);
 		Part armRight2 = new Part(new Vector(0, -0.2), new Vector(0, -0.2), armRight1, 0, 0.4f, 1, Textures.PLAYER_ARM,
 				Textures.PLAYER_ARM_COLMESH);
 
-		Part head = new Part(new Vector(0, -0.5), new Vector(0, -0.3), playerBody, 0, 0.7f, 1, Textures.PLAYER_HEAD,
+		legLeft1.setRotLimit(Math.PI / 2, 5 * Math.PI / 4);
+		legLeft2.setRotLimit(0, 3 * Math.PI / 4);
+		legRight1.setRotLimit(Math.PI / 2, 5 * Math.PI / 4);
+		legRight2.setRotLimit(0, 3 * Math.PI / 4);
+
+		armRight1.setRotLimit(Math.PI / 4, 3 * Math.PI / 2);
+		armRight2.setRotLimit(-3 * Math.PI / 4, 0);
+		armLeft1.setRotLimit(Math.PI / 4, 3 * Math.PI / 2);
+		armLeft2.setRotLimit(-3 * Math.PI / 4, 0);
+		
+		Part head = new Part(new Vector(0, -0.3), new Vector(0, -0.3), playerBody, 0, 0.5f, 1, Textures.PLAYER_HEAD,
 				Textures.PLAYER_HEAD_COLMESH);
 
-		armLeft1.setRotLimit(-Math.PI / 2, Math.PI / 2);
-		armRight1.setRotLimit(-Math.PI / 2, Math.PI / 2);
-		armLeft2.setRotLimit(-Math.PI, Math.PI);
-		armRight2.setRotLimit(-Math.PI, Math.PI);
 		head.setRotLimit(-Math.PI / 4, Math.PI / 4);
 
 		armLeft1.connected.add(armLeft2);
 		armRight1.connected.add(armRight2);
 
-		if (true) {
-			playerBody.connected.add(armLeft1);
-			playerBody.connected.add(armRight1);
-			playerBody.connected.add(head);
-		}
+		legLeft1.connected.add(legLeft2);
+		legRight1.connected.add(legRight2);
+
+		playerBody.connected.add(armLeft1);
+		playerBody.connected.add(armRight1);
+		playerBody.connected.add(legLeft1);
+		playerBody.connected.add(legRight1);
+		playerBody.connected.add(head);
+
 		player.part = playerBody;
 
 		loadSnake();
@@ -99,7 +132,7 @@ public class World {
 
 		objects.add(player);
 
-		active = getPlayer().part;
+		active = Optional.of(getPlayer().part);
 	}
 
 	public void loadSpaceShip() {
@@ -183,6 +216,8 @@ public class World {
 			getGui().draw((Graphics2D) g, width, height);
 
 		}
+
+		camPos = getPlayer().posInSpace;
 	}
 
 	public Part getPlayerLeftLastArm() {

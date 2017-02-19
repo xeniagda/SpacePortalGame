@@ -62,5 +62,9 @@ public class GameObject {
 	public double getTotalWeight() {
 		return part.getTotalOwnWeight();
 	}
-
+	
+	public ArrayList<Part> getAllParts() {
+		return part.getAllChildren();
+	}
+	
 }

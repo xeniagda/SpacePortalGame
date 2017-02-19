@@ -10,13 +10,16 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="90mm"
-   height="50mm"
-   viewBox="0 0 90 50"
+   width="16.229349mm"
+   height="47.273529mm"
+   viewBox="0 0 16.229349 47.273529"
    id="svg4344"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="Arm.svg">
+   sodipodi:docname="Arm.svg"
+   inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/SPG/Res/Player/Arm.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs3">
     <linearGradient
@@ -25,7 +28,7 @@
       <stop
          id="stop5159"
          offset="0"
-         style="stop-color:#cccccc;stop-opacity:0;" />
+         style="stop-color:#b3b3b3;stop-opacity:1" />
       <stop
          id="stop5157"
          offset="1"
@@ -35,12 +38,12 @@
        inkscape:collect="always"
        xlink:href="#linearGradient5155"
        id="radialGradient5161"
-       cx="29.578508"
-       cy="7.224226"
-       fx="29.578508"
-       fy="7.224226"
+       cx="29.95418"
+       cy="7.5242786"
+       fx="29.95418"
+       fy="7.5242786"
        r="36.441948"
-       gradientTransform="matrix(-0.53478448,0.43298784,-0.43891943,-0.54211035,46.018652,-58.046066)"
+       gradientTransform="matrix(-0.64525091,0,-1.9247498e-7,-0.45962084,46.025606,-45.475829)"
        gradientUnits="userSpaceOnUse"
        spreadMethod="pad" />
   </defs>
@@ -51,17 +54,21 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.6970563"
-     inkscape:cx="177.65314"
-     inkscape:cy="87.761424"
+     inkscape:zoom="3.3941126"
+     inkscape:cx="-81.257815"
+     inkscape:cy="87.555393"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1436"
-     inkscape:window-height="855"
-     inkscape:window-x="4"
+     inkscape:window-width="1920"
+     inkscape:window-height="1058"
+     inkscape:window-x="0"
      inkscape:window-y="0"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
   <metadata
      id="metadata4348">
     <rdf:RDF>
@@ -70,34 +77,23 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-40.392272,-2.6683224)">
     <rect
-       style="fill:#999999;fill-opacity:1;stroke:#656565;stroke-width:0.36610672;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect4891"
-       width="46.907421"
-       height="24.178295"
-       x="2.8513758"
-       y="-60.596096"
-       ry="4.271245"
-       transform="matrix(0,1,-1,0,0,0)"
-       inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Body.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
-    <rect
-       ry="4.271245"
-       y="-60.596096"
-       x="2.8513758"
-       height="24.178295"
-       width="46.907421"
+       ry="2.8144765"
+       y="-56.472919"
+       x="2.8170245"
+       height="15.931946"
+       width="46.976124"
        id="rect5105"
-       style="fill:url(#radialGradient5161);fill-opacity:1;stroke:#656565;stroke-width:0.36610672;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:url(#radialGradient5161);fill-opacity:1;stroke:#656565;stroke-width:0.2974042;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        transform="matrix(0,1,-1,0,0,0)"
        inkscape:export-filename="/Users/jonathanloov/Dropbox/Teammajim/SpacePortalGame/Home computer/SpacePortalGame/Res/Player/Body.png"
        inkscape:export-xdpi="90"
